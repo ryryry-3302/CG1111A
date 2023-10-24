@@ -23,8 +23,12 @@ void turnLeft() {
     rightMotor.stop(); // Stop right motor
     // Code for turning left 90 deg
     }
-    
-void uTurn() {// Code for u-turn}
+
+void uTurn() {// Code for u-turn
+    turnLeft();
+    delay(1500);
+    turnLeft(); 
+}
 void doubleLeftTurn() {// Code for double left turn}
 void doubleRightTurn() {// Code for double right turn}
 void nudgeLeft() {// Code for nudging slightly to the left for some short
