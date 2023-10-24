@@ -1,9 +1,36 @@
 #include <MeMCore.h>
 
 #define TURNING_TIME_MS 344.5 // The time duration (ms) for turning
+
+#define TIMEOUT 1000 // Max microseconds to wait; choose according to max distance of wall
+#define SPEED_OF_SOUND 340 // Update according to your own experiment
+#define ULTRASONIC 10
+
+
 MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
 MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
 uint8_t motorSpeed = 255;
+
+double gen_ultrasonic() {
+    pinMode(ULTRASONIC, OUTPUT);
+    digitalWrite(ULTRASONIC, LOW);
+    delayMicroseconds(2);
+    digitalWrite(ULTRASONIC, HIGH);
+    delayMicroseconds(10);
+    digitalWrite(ULTRASONIC, LOW);
+    pinMode(ULTRASONIC, INPUT);
+    long duration = pulseIn(ULTRASONIC, HIGH, TIMEOUT);
+    if (duration > 0) {
+    double distance = duration / 2.0 / 1000000 * SPEED_OF_SOUND * 100;
+   // Serial.print("distance(cm) = ");
+   // Serial.println(distance);
+    return distance;
+    }
+    else {
+   //  Serial.println("out of range");
+    return 0;
+    }
+}
 
 void celebrate() {// Code for playing celebratory tune
 int e = 329;
@@ -67,8 +94,8 @@ void uTurn() {// Code for u-turn
 }
 void doubleLeftTurn() {// Code for double left turn}
 void doubleRightTurn() {// Code for double right turn}
-void nudgeLeft() {// Code for nudging slightly to the left for some short
-interval}
+void nudgeLeft() {// Code for nudging slightly to the left for some short interval 
+}
 void nudgeRight() {// Code for nudging slightly to the right for some short interval 
 }
 void shineIR() {// Code for turning on the IR emitter only}
@@ -85,14 +112,17 @@ int detectColour()
 void setup()
 {
 // Configure pinMode for A0, A1, A2, A3
+Serial.begin(9600);
+
 }
 void loop()
 {
 // Read ultrasonic sensing distance (choose an appropriate timeout)
-// Read IR sensing distance (turn off IR, read IR detector, turn on IR,
-read IR detector, estimate distance)
-// if within black line, stop motor, detect colour, and take corresponding
-action
+int right_distance = gen_ultrasonic();
+delay(500);
+
+// Read IR sensing distance (turn off IR, read IR detector, turn on IR, read IR detector, estimate distance)
+// if within black line, stop motor, detect colour, and take corresponding action
 // else if too near to left wall, nudge right
 // else if too near to right wall, nudge left
 // else move forward
