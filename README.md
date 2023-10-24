@@ -31,3 +31,5 @@ blue s2 ir  receveier
 motor config
 leftMotor.run(200); // Left wheel goes forward (anti-clockwise)
 rightMotor.run(-200);
+
+hi 
