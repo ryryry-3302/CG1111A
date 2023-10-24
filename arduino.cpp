@@ -5,7 +5,45 @@ MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
 MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
 uint8_t motorSpeed = 255;
 
-void celebrate() {// Code for playing celebratory tune}
+void celebrate() {// Code for playing celebratory tune
+int e = 329;
+int f = 349;
+int g = 370;
+int d = 277;
+int c = 247;
+buzzer.tone(e, 600);
+buzzer.tone(e, 600);
+buzzer.tone(f, 600);
+buzzer.tone(g, 600);
+buzzer.tone(g, 600);
+buzzer.tone(f, 600);
+buzzer.tone(e, 600);
+buzzer.tone(d, 600);
+buzzer.tone(c, 600);
+buzzer.tone(c, 600);
+buzzer.tone(d, 600);
+buzzer.tone(e, 600);
+buzzer.tone(e, 600);
+buzzer.tone(d, 600);
+buzzer.tone(d, 600);
+buzzer.noTone();
+delay(500);
+buzzer.tone(e, 600);
+buzzer.tone(e, 600);
+buzzer.tone(f, 600);
+buzzer.tone(g, 600);
+buzzer.tone(g, 600);
+buzzer.tone(f, 600);
+buzzer.tone(e, 600);
+buzzer.tone(d, 600);
+buzzer.tone(c, 600);
+buzzer.tone(c, 600);
+buzzer.tone(d, 600);
+buzzer.tone(e, 600);
+buzzer.tone(d, 600);
+buzzer.tone(c, 600);
+buzzer.tone(c, 600);
+}
 void stopMotor() {// Code for stopping motor}
 void moveForward() {// Code for moving forward for some short interval}
 void turnRight() {// Code for turning right 90 deg
@@ -15,15 +53,13 @@ void turnRight() {// Code for turning right 90 deg
     leftMotor.stop(); // Stop left motor
     rightMotor.stop();
 }
-void turnLeft() {
+void turnLeft() {// Code for turning left 90 deg
     leftMotor.run(motorSpeed); // Positive: wheel turns clockwise
     rightMotor.run(motorSpeed); // Positive: wheel turns clockwise
     delay(TURNING_TIME_MS); // Keep turning left for this time duration
     leftMotor.stop(); // Stop left motor
     rightMotor.stop(); // Stop right motor
-    // Code for turning left 90 deg
     }
-
 void uTurn() {// Code for u-turn
     turnLeft();
     delay(1500);
@@ -33,8 +69,8 @@ void doubleLeftTurn() {// Code for double left turn}
 void doubleRightTurn() {// Code for double right turn}
 void nudgeLeft() {// Code for nudging slightly to the left for some short
 interval}
-void nudgeRight() {// Code for nudging slightly to the right for some
-short interval}
+void nudgeRight() {// Code for nudging slightly to the right for some short interval 
+}
 void shineIR() {// Code for turning on the IR emitter only}
 void shineRed() {// Code for turning on the red LED only}
 void shineGreen() {// Code for turning on the green LED only}
