@@ -10,6 +10,7 @@ MeBuzzer buzzer;
 #define BIT_A_ORANGE A2
 #define BIT_B_YELLOW A3
 #define LDR A0
+#define ir_receiver A1
 
 
 float colourArray[] = {0,0,0};
@@ -20,7 +21,7 @@ float greyDiff[] = {0,0,0};
 int red = 0;
 int green = 0;
 int blue = 0;
-
+int ir_val = 0;
 
 MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
 MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
@@ -146,9 +147,10 @@ void shineGreen() {
 }
 void shineBlue() {
     // Code for turning on the blue LED only
-    digitalWrite(BIT_A_ORANGE, LOW); 
-    digitalWrite(BIT_B_YELLOW, HIGH);
+    digitalWrite(BIT_A_ORANGE, HIGH); 
+    digitalWrite(BIT_B_YELLOW, LOW);
 }
+
 int detectColour()
 {
 // Shine Red, read LDR after some delay
