@@ -21,7 +21,8 @@ float greyDiff[] = {0,0,0};
 int red = 0;
 int green = 0;
 int blue = 0;
-int ir_val = 0;
+int right_distance = 0;
+int left_distance = 0;
 
 MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
 MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
@@ -126,6 +127,7 @@ void doubleRightTurn() {
     // Code for double right turn}
 void nudgeLeft() {
     // Code for nudging slightly to the left for some short interval 
+
 }
 void nudgeRight() {
     // Code for nudging slightly to the right for some short interval 
@@ -170,7 +172,27 @@ pinMode(LDR, INPUT);
 void loop()
 {
 // Read ultrasonic sensing distance (choose an appropriate timeout)
-int right_distance = gen_ultrasonic();
+moveForward()
+right_distance = gen_ultrasonic();
+shineIR();
+    if (right_distance != 0)
+    {
+        if (right_distance <3.5)
+        {
+            nudgeLeft();
+        }
+        if (right_distance >=4)
+        {
+            nudgeRight();
+        }
+        else
+        {
+            moveForward();
+        }    
+    }
+    
+left_distance = analogRead(ir_receiver);//
+Serial.println(ir_val);
 delay(500);
 
 // Read IR sensing distance (turn off IR, read IR detector, turn on IR, read IR detector, estimate distance)
