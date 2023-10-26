@@ -41,8 +41,8 @@ double gen_ultrasonic() {
     long duration = pulseIn(ULTRASONIC, HIGH, TIMEOUT);
     if (duration > 0) {
     double distance = duration / 2.0 / 1000000 * SPEED_OF_SOUND * 100 - 3.40;
-   // Serial.print("distance(cm) = ");
-   // Serial.println(distance);
+    Serial.print("distance(cm) = ");
+   Serial.println(distance);
     return distance;
     }
     else {
@@ -208,19 +208,23 @@ right_distance = gen_ultrasonic();
 shineIR();
     if (right_distance != 0)
     {
-        if (right_distance <3.5)
+        if (right_distance <3)
         {
             nudgeLeft();
+            moveForward();
         }
         if (right_distance >=4)
         {
             nudgeRight();
+            moveForward();
         }
         else
         {
             moveForward();
         }    
     }
+    
+    delay(20);
     
 
 
