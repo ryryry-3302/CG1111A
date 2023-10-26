@@ -126,27 +126,32 @@ void doubleLeftTurn() {
     turnLeft();
     delay(1500);
     moveForward();
-    delay(1500);
+    delay(1_GRID_DISTANCE); // Move forward for the distance of 1 grid
     turnLeft();
 void doubleRightTurn() {
     // Code for double right turn}
     turnRight();
     delay(1500);
     moveForward();
-    delay(1500);
+    delay(1_GRID_DISTANCE); // Move forward for the distance of 1 grid
     turnRight();
 void nudgeLeft() {
     // Code for nudging slightly to the left for some short interval
     //the mbot is facing slightly to the right, therefore, the right wheel should move more to correct the offset
     leftMotor.run(190);
     rightMotor.run(-motorSpeed);
-
+    delay(1000);
+    leftMotor.stop();
+    rightMotor.stop();
 }
 void nudgeRight() {
     // Code for nudging slightly to the right for some short interval
     //the mbot is facing slightly to the left, therefore, the left wheel should move more to correct the offset
     rightMotor.run(-190);
     leftMotor.run(motorSpeed);
+    delay(1000);
+    rightMotor.stop();
+    leftMotor.stop();
 }
 void shineIR() {
     // Code for turning on the IR emitter only
