@@ -128,9 +128,19 @@ void uTurn() {
 }
 void doubleLeftTurn() {
     // Code for double left turn
+    turnLeft();
+    delay(1500);
+    moveForward();
+    delay(1_GRID_DISTANCE); // Move forward for the distance of 1 grid
+    turnLeft();
     }
 void doubleRightTurn() {
     // Code for double right turn
+    turnRight();
+    delay(1500);
+    moveForward();
+    delay(1_GRID_DISTANCE); // Move forward for the distance of 1 grid
+    turnRight();
     }
 void nudgeLeft() {
     // Code for nudging slightly to the left for some short interval 
@@ -218,6 +228,31 @@ left_distance = analogRead(ir_receiver) - ambient;
         else if (right_distance >=4.7)
         {
             nudgeRight();
+
+            moveForward();
+        }
+        else
+        {
+            moveForward();
+        }    
+    }
+    delay(20);
+
+    moveForward();
+//right_distance = gen_ultrasonic();
+shineIR();
+left_distance = analogRead(ir_receiver) - ambient;
+    if (true)
+    {
+        if (left_distance <0)
+        {
+            nudgeRight();
+
+            moveForward();
+        }
+        else if (left_distance >=10)
+        {
+            nudgeLeft();
 
             moveForward();
         }
