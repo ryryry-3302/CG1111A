@@ -128,9 +128,19 @@ void uTurn() {
 }
 void doubleLeftTurn() {
     // Code for double left turn
+    turnLeft();
+    delay(1500);
+    moveForward();
+    delay(1_GRID_DISTANCE); // Move forward for the distance of 1 grid
+    turnLeft();
     }
 void doubleRightTurn() {
     // Code for double right turn
+    turnRight();
+    delay(1500);
+    moveForward();
+    delay(1_GRID_DISTANCE); // Move forward for the distance of 1 grid
+    turnRight();
     }
 void nudgeLeft() {
     // Code for nudging slightly to the left for some short interval 
