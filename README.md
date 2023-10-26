@@ -45,9 +45,9 @@ Purple Two successive left-turns in two grids
 Light Blue Two successive right-turns in two grids
 
 To Do List
-Calibrate Ultrasonic sensor
+Calibrate Ultrasonic sensor done
 Calibrate Ir Sensor
 Create code for colour sensor
 create functions for colour challenges
-route correction
+route correction half
 
