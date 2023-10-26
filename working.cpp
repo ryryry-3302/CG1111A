@@ -188,13 +188,13 @@ int detectColour()
 }
 
 int calibrate_ir(){
-  shineRed();
-  delay(1000);
+  shineIR();
+  delay(200);
   int temp = 0;
-  for (int i=0; i<10; i++){
+  for (int i=0; i<5; i++){
     temp += analogRead(ir_receiver);
   }
-  ambient = temp / 10;
+  ambient = temp / 5;
   Serial.print("Ambient");
   Serial.println(ambient);
 }
