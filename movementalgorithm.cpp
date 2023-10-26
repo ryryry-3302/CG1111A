@@ -1,4 +1,5 @@
 #include <MeMCore.h>
+#include <PID_v1.h>
 MeBuzzer buzzer;
 MeLineFollower lineFinder(PORT_1);
 
@@ -14,25 +15,28 @@ MeLineFollower lineFinder(PORT_1);
 #define LDR A0 //Pin of LDR
 #define ir_receiver A1 // Pin of IR Receiver
 
- // read the line sensor's state
-int ambient  = 680;
 
 
-float colourArray[] = {0,0,0};
-float whiteArray[] = {0,0,0};
-float blackArray[] = {0,0,0};
-float greyDiff[] = {0,0,0};
+//Define Variables we'll be connecting to
+double ambient, LeftInput, Output;
 
-int red = 0;
-int green = 0;
-int blue = 0;
-int right_distance = 1;
-int left_distance = 0;
+//Specify the links and initial tuning parameters
+double Kp=0.5, Ki=0.2, Kd=0;
+PID leftPID(&LeftInput, &Output, &ambient, Kp, Ki, Kd, DIRECT);
+
+
+int right_distance = 1; //distance from right wall
+int left_distance = 0; //distance from left wall
 
 MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
 MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
 uint8_t motorSpeed = 255;
 uint8_t lowSpeed  = motorSpeed - 50;
+
+void gen_LeftPID(){
+    LeftInput = analogRead(LDR);
+    leftPID.Compute();
+}
 
 double gen_ultrasonic() {
     pinMode(ULTRASONIC, OUTPUT);
@@ -131,20 +135,8 @@ void uTurn() {
     rightMotor.stop(); 
 }
 void doubleLeftTurn() {
-    // Code for double left turn
-    turnLeft();
-    delay(1500);
-    moveForward();
-    delay(1_GRID_DISTANCE); // Move forward for the distance of 1 grid
-    turnLeft();
     }
 void doubleRightTurn() {
-    // Code for double right turn
-    turnRight();
-    delay(1500);
-    moveForward();
-    delay(1_GRID_DISTANCE); // Move forward for the distance of 1 grid
-    turnRight();
     }
 void nudgeLeft() {
     leftMotor.run(lowSpeed); 
@@ -186,10 +178,10 @@ int detectColour()
 // Run algorithm for colour decoding
 }
 
-int calibrate_ir(){
+void calibrate_ir(){
   shineIR();
   delay(200);
-  int temp = 0;
+  double temp = 0;
   for (int i=0; i<5; i++){
     temp += analogRead(ir_receiver);
     delay(30);
@@ -197,6 +189,7 @@ int calibrate_ir(){
   ambient = temp / 5;
   Serial.print("Ambient");
   Serial.println(ambient);
+  leftPID.SetMode(AUTOMATIC);
 }
 
 
@@ -215,9 +208,10 @@ void loop()
     int sensorState = lineFinder.readSensors();
     if (sensorState == S1_IN_S2_IN ) //check if on black line
         { 
-            stopMotor()
+            stopMotor();
         }
     else {
+        gen_LeftPID();
         shineIR();
         left_distance = analogRead(ir_receiver) - ambient;
         right_distance = gen_ultrasonic();
@@ -243,22 +237,8 @@ void loop()
 
         else if (right_distance == 0 && left_distance < 20)
         {
-            if (left_distance <-20)
-            {
-                nudgeRight();
-
-                moveForward();
-            }
-            else if (left_distance >=5)
-            {
-                nudgeLeft();
-
-                moveForward();
-            }
-            else
-            {
-                moveForward();
-            }
+            leftMotor.run((Output/2.2)+150);
+            rightMotor.run(-lowSpeed);
         }
         else 
         {
