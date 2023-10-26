@@ -7,6 +7,11 @@ ir detector red
 emitter is yellows
 l293d is hbridge to on and off the led
 
+
+## Mbot Specs 
+13cm X 19cm 
+
+
 ## Port 1 Black line detector
 
 ## Port 2 Ultrasonic
@@ -39,4 +44,3 @@ Orange 180° turn within the same grid
 Purple Two successive left-turns in two grids
 Light Blue Two successive right-turns in two grids
 
-test
