@@ -1,0 +1,78 @@
+#define RGBwait 200  //time taken for LDR to stabilise , need calibrate
+#define ON 0
+#define OFF 1
+
+//colour indexes according to list
+#define red 0
+#define green 1
+#define blue 2
+#define orange 3
+#define purple 4
+
+//list of rgb values of colours, update more accurate values aft calibration
+float colourList[5][3] = {
+  { 255, 0, 0 },
+  { 0, 128, 0 },
+  { 0, 0, 255 },
+  { 255, 165, 0 },
+  { 128, 0, 128 },
+};
+
+void shine(int c) {
+  if (c == red) {
+    shineRed();
+  } else if (c == green) {
+    shineGreen();
+  } else {
+    shineBlue();
+  }
+}
+
+int getAvgReading(int times) {
+  //find the average reading for the requested number of times of scanning LDR
+  int reading;
+  int total = 0;
+  //take the reading as many times as requested and add them up
+  for (int i = 0; i < times; i++) {
+    reading = analogRead(LDR);
+    total = reading + total;
+    delay(10);  //LDRwait delay before another ldr reading
+  }
+  //calculate the average and return it
+  return total / times;
+}
+
+int detectColour() {
+  float colourArray[] = { 0, 0, 0 };
+  float whiteArray[] = { 0, 0, 0 };  //only need for calib, delete aft
+  float blackArray[] = { 0, 0, 0 };
+  float greyDiff[] = { 0, 0, 0 };  // black[] - white[]
+  char colourStr[3][5] = { "R = ", "G = ", "B = " };
+
+  for (int c = 0; c < 3; c++) {  //red then green then blue
+    Serial.print(colourStr[c]);
+    shine(c);  //turn on current led
+    delay(RGBwait);
+    colourArray[c] = getAvgReading(5);                                        // read ldr avg values for current led
+    colourArray[c] = (colourArray[c] - blackArray[c]) / (greyDiff[c]) * 255;  //calc rgb value     
+    Serial.println(int(colourArray[c]));
+    delay(RGBwait);
+  }
+
+  // colour identification
+  int nearestColour = 0;
+  float nearestDist = 3 * (255 * 255);
+
+  for (int c = 0; c < 5; c++) {  //loop through every colour and calc diff with rgb value obtained
+    float deltaR = colourList[c][red] - colourArray[red];
+    float deltaG = colourList[c][green] - colourArray[green];
+    float deltaB = colourList[c][blue] - colourArray[blue];
+
+    float dist = (deltaR * deltaR) + (deltaG * deltaG) + (deltaB * deltaB);  //i have no idea why they square it but okay
+    if (dist < nearestDist) {                                                //update new nearest dist and colour
+      nearestDist = dist;
+      nearestColour = c;
+    }
+  }
+  return nearestColour;
+}
