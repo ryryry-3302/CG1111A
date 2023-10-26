@@ -147,17 +147,14 @@ void doubleRightTurn() {
     turnRight();
     }
 void nudgeLeft() {
-    // Code for nudging slightly to the left for some short interval 
-    leftMotor.run(lowSpeed); // Positive: wheel turns clockwise
-    rightMotor.run(lowSpeed); // Positive: wheel turns clockwise
-    delay(40); // Keep turning left for this time duration
-
-}
+    leftMotor.run(lowSpeed); 
+    rightMotor.run(-motorSpeed);
+    }
 void nudgeRight() {
-    // Code for nudging slightly to the right for some short interval 
-    leftMotor.run(-lowSpeed); // Positive: wheel turns clockwise
-    rightMotor.run(-lowSpeed); // Positive: wheel turns clockwise
-    delay(40); // Keep turning left for this time duration
+
+    leftMotor.run(lowSpeed); 
+    rightMotor.run(-lowSpeed); 
+ 
 
 }
 void shineIR() {
