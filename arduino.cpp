@@ -193,6 +193,7 @@ int calibrate_ir(){
   int temp = 0;
   for (int i=0; i<5; i++){
     temp += analogRead(ir_receiver);
+    delay(30);
   }
   ambient = temp / 5;
   Serial.print("Ambient");
