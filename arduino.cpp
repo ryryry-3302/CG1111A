@@ -3,7 +3,7 @@ MeBuzzer buzzer;
 
 #define TURNING_TIME_MS 344.5 // The time duration (ms) for turning
 
-#define TIMEOUT 1000 // Max microseconds to wait; choose according to max distance of wall
+#define TIMEOUT 1200 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
 #define ULTRASONIC 10
 
