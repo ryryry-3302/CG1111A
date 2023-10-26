@@ -237,6 +237,31 @@ left_distance = analogRead(ir_receiver) - ambient;
         }    
     }
     delay(20);
+
+    moveForward();
+//right_distance = gen_ultrasonic();
+shineIR();
+left_distance = analogRead(ir_receiver) - ambient;
+    if (true)
+    {
+        if (left_distance <0)
+        {
+            nudgeRight();
+
+            moveForward();
+        }
+        else if (left_distance >=10)
+        {
+            nudgeLeft();
+
+            moveForward();
+        }
+        else
+        {
+            moveForward();
+        }    
+    }
+    delay(20);
     
     
 
