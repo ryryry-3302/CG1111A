@@ -12,7 +12,7 @@ MeBuzzer buzzer;
 #define LDR A0
 #define ir_receiver A1
 
-int ambient 680;
+int  ambient  = 680;
 
 
 float colourArray[] = {0,0,0};
@@ -127,15 +127,26 @@ void uTurn() {
     rightMotor.stop(); 
 }
 void doubleLeftTurn() {
-    // Code for double left turn}
+    // Code for double left turn
+    }
 void doubleRightTurn() {
-    // Code for double right turn}
+    // Code for double right turn
+    }
 void nudgeLeft() {
     // Code for nudging slightly to the left for some short interval 
-
+    leftMotor.run(motorSpeed); // Positive: wheel turns clockwise
+    rightMotor.run(motorSpeed); // Positive: wheel turns clockwise
+    delay(20); // Keep turning left for this time duration
+    leftMotor.stop(); // Stop left motor
+    rightMotor.stop();
 }
 void nudgeRight() {
     // Code for nudging slightly to the right for some short interval 
+    leftMotor.run(-motorSpeed); // Positive: wheel turns clockwise
+    rightMotor.run(-motorSpeed); // Positive: wheel turns clockwise
+    delay(20); // Keep turning left for this time duration
+    leftMotor.stop(); // Stop left motor
+    rightMotor.stop();
 }
 void shineIR() {
     // Code for turning on the IR emitter only
@@ -192,7 +203,7 @@ calibrate_ir();
 void loop()
 {
 // Read ultrasonic sensing distance (choose an appropriate timeout)
-moveForward()
+moveForward();
 right_distance = gen_ultrasonic();
 shineIR();
     if (right_distance != 0)
@@ -211,9 +222,7 @@ shineIR();
         }    
     }
     
-left_distance = analogRead(ir_receiver);//
-Serial.println(ir_val);
-delay(500);
+
 
 // Read IR sensing distance (turn off IR, read IR detector, turn on IR, read IR detector, estimate distance)
 // if within black line, stop motor, detect colour, and take corresponding action
