@@ -12,6 +12,8 @@ MeBuzzer buzzer;
 #define LDR A0
 #define ir_receiver A1
 
+int ambient 680;
+
 
 float colourArray[] = {0,0,0};
 float whiteArray[] = {0,0,0};
@@ -38,7 +40,7 @@ double gen_ultrasonic() {
     pinMode(ULTRASONIC, INPUT);
     long duration = pulseIn(ULTRASONIC, HIGH, TIMEOUT);
     if (duration > 0) {
-    double distance = duration / 2.0 / 1000000 * SPEED_OF_SOUND * 100;
+    double distance = duration / 2.0 / 1000000 * SPEED_OF_SOUND * 100 - 3.40;
    // Serial.print("distance(cm) = ");
    // Serial.println(distance);
     return distance;
@@ -119,39 +121,21 @@ void uTurn() {
     // Code for u-turn
     turnLeft();
     delay(1500);
-    turnLeft(); 
+    turnLeft();
+    delay(1500);
+    leftMotor.stop(); // Stop left motor
+    rightMotor.stop(); 
 }
 void doubleLeftTurn() {
     // Code for double left turn}
-    turnLeft();
-    delay(1500);
-    moveForward();
-    delay(1_GRID_DISTANCE); // Move forward for the distance of 1 grid
-    turnLeft();
 void doubleRightTurn() {
     // Code for double right turn}
-    turnRight();
-    delay(1500);
-    moveForward();
-    delay(1_GRID_DISTANCE); // Move forward for the distance of 1 grid
-    turnRight();
 void nudgeLeft() {
-    // Code for nudging slightly to the left for some short interval
-    //the mbot is facing slightly to the right, therefore, the right wheel should move more to correct the offset
-    leftMotor.run(190);
-    rightMotor.run(-motorSpeed);
-    delay(1000);
-    leftMotor.stop();
-    rightMotor.stop();
+    // Code for nudging slightly to the left for some short interval 
+
 }
 void nudgeRight() {
-    // Code for nudging slightly to the right for some short interval
-    //the mbot is facing slightly to the left, therefore, the left wheel should move more to correct the offset
-    rightMotor.run(-190);
-    leftMotor.run(motorSpeed);
-    delay(1000);
-    rightMotor.stop();
-    leftMotor.stop();
+    // Code for nudging slightly to the right for some short interval 
 }
 void shineIR() {
     // Code for turning on the IR emitter only
@@ -181,6 +165,21 @@ int detectColour()
 // Shine Blue, read LDR after some delay
 // Run algorithm for colour decoding
 }
+
+int calibrate_ir(){
+  shineRed();
+  delay(1000);
+  int temp = 0;
+  for (int i=0; i<10; i++){
+    temp += analogRead(ir_receiver);
+  }
+  ambient = temp / 10;
+  Serial.print("Ambient");
+  Serial.println(ambient);
+}
+
+
+
 void setup()
 {
 // Configure pinMode for A0, A1, A2, A3
@@ -188,13 +187,11 @@ Serial.begin(9600); // to initialize the serial monitor
 pinMode(BIT_A_ORANGE, OUTPUT);
 pinMode(BIT_B_YELLOW, OUTPUT);
 pinMode(LDR, INPUT);
-
+calibrate_ir();
 }
 void loop()
 {
 // Read ultrasonic sensing distance (choose an appropriate timeout)
-// Ultrasonic sensor to the outer line of the wheel = 3.5cm
-// IR sensor to the outer line of the wheel = 1.0 cm
 moveForward()
 right_distance = gen_ultrasonic();
 shineIR();
