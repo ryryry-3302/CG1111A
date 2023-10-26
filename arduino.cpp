@@ -1,5 +1,6 @@
 #include <MeMCore.h>
 MeBuzzer buzzer;
+MeLineFollower lineFinder(PORT_1);
 
 #define TURNING_TIME_MS 344.5 // The time duration (ms) for turning
 
@@ -11,6 +12,8 @@ MeBuzzer buzzer;
 #define BIT_B_YELLOW A3
 #define LDR A0
 #define ir_receiver A1
+
+int sensorState = lineFinder.readSensors(); // read the line sensor's state
 
 int  ambient  = 680;
 
@@ -29,6 +32,7 @@ int left_distance = 0;
 MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
 MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
 uint8_t motorSpeed = 255;
+uint8_t lowSpeed  = motorSpeed - 50;
 
 double gen_ultrasonic() {
     pinMode(ULTRASONIC, OUTPUT);
@@ -144,19 +148,17 @@ void doubleRightTurn() {
     }
 void nudgeLeft() {
     // Code for nudging slightly to the left for some short interval 
-    leftMotor.run(motorSpeed); // Positive: wheel turns clockwise
-    rightMotor.run(motorSpeed); // Positive: wheel turns clockwise
+    leftMotor.run(lowSpeed); // Positive: wheel turns clockwise
+    rightMotor.run(lowSpeed); // Positive: wheel turns clockwise
     delay(40); // Keep turning left for this time duration
-    leftMotor.stop(); // Stop left motor
-    rightMotor.stop();
+
 }
 void nudgeRight() {
     // Code for nudging slightly to the right for some short interval 
-    leftMotor.run(-motorSpeed); // Positive: wheel turns clockwise
-    rightMotor.run(-motorSpeed); // Positive: wheel turns clockwise
+    leftMotor.run(-lowSpeed); // Positive: wheel turns clockwise
+    rightMotor.run(-lowSpeed); // Positive: wheel turns clockwise
     delay(40); // Keep turning left for this time duration
-    leftMotor.stop(); // Stop left motor
-    rightMotor.stop();
+
 }
 void shineIR() {
     // Code for turning on the IR emitter only
@@ -213,56 +215,63 @@ calibrate_ir();
 }
 void loop()
 {
-// Read ultrasonic sensing distance (choose an appropriate timeout)
-moveForward();
-right_distance = gen_ultrasonic();
-shineIR();
-left_distance = analogRead(ir_receiver) - ambient;
-    if (right_distance != 0)
-    {
-        if (right_distance <4.0)
+    
+    if (sensorState == S1_IN_S2_IN ) //check if on black line
+        { 
+            stopMotor()
+        }
+    else {
+        shineIR();
+        left_distance = analogRead(ir_receiver) - ambient;
+        right_distance = gen_ultrasonic();
+        if (right_distance != 0)
         {
-            nudgeLeft();
+            if (right_distance <4.0)
+            {
+                nudgeLeft();
 
+                moveForward();
+            }
+            else if (right_distance >=4.7)
+            {
+                nudgeRight();
+
+                moveForward();
+            }
+            else
+            {
+                moveForward();
+            }    
+        }
+
+        else if (right_distance == 0 && left_distance < 20)
+        {
+            if (left_distance <-20)
+            {
+                nudgeRight();
+
+                moveForward();
+            }
+            else if (left_distance >=5)
+            {
+                nudgeLeft();
+
+                moveForward();
+            }
+            else
+            {
+                moveForward();
+            }
+        }
+        else 
+        {
             moveForward();
         }
-        else if (right_distance >=4.7)
-        {
-            nudgeRight();
-
-            moveForward();
-        }
-        else
-        {
-            moveForward();
-        }    
+        delay(20);
     }
-    delay(20);
+       
 
-    moveForward();
-//right_distance = gen_ultrasonic();
-shineIR();
-left_distance = analogRead(ir_receiver) - ambient;
-    if (true)
-    {
-        if (left_distance <0)
-        {
-            nudgeRight();
-
-            moveForward();
-        }
-        else if (left_distance >=10)
-        {
-            nudgeLeft();
-
-            moveForward();
-        }
-        else
-        {
-            moveForward();
-        }    
-    }
-    delay(20);
+   
     
     
 
