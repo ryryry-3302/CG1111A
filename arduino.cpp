@@ -3,7 +3,7 @@ MeBuzzer buzzer;
 
 #define TURNING_TIME_MS 344.5 // The time duration (ms) for turning
 
-#define TIMEOUT 1200 // Max microseconds to wait; choose according to max distance of wall
+#define TIMEOUT 1600 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
 #define ULTRASONIC 10
 
@@ -23,7 +23,7 @@ float greyDiff[] = {0,0,0};
 int red = 0;
 int green = 0;
 int blue = 0;
-int right_distance = 0;
+int right_distance = 1;
 int left_distance = 0;
 
 MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
@@ -136,7 +136,7 @@ void nudgeLeft() {
     // Code for nudging slightly to the left for some short interval 
     leftMotor.run(motorSpeed); // Positive: wheel turns clockwise
     rightMotor.run(motorSpeed); // Positive: wheel turns clockwise
-    delay(20); // Keep turning left for this time duration
+    delay(40); // Keep turning left for this time duration
     leftMotor.stop(); // Stop left motor
     rightMotor.stop();
 }
@@ -144,7 +144,7 @@ void nudgeRight() {
     // Code for nudging slightly to the right for some short interval 
     leftMotor.run(-motorSpeed); // Positive: wheel turns clockwise
     rightMotor.run(-motorSpeed); // Positive: wheel turns clockwise
-    delay(20); // Keep turning left for this time duration
+    delay(40); // Keep turning left for this time duration
     leftMotor.stop(); // Stop left motor
     rightMotor.stop();
 }
@@ -206,16 +206,19 @@ void loop()
 moveForward();
 right_distance = gen_ultrasonic();
 shineIR();
+left_distance = analogRead(ir_receiver) - ambient;
     if (right_distance != 0)
     {
-        if (right_distance <3)
+        if (right_distance <4.0)
         {
             nudgeLeft();
+
             moveForward();
         }
-        if (right_distance >=4)
+        else if (right_distance >=4.7)
         {
             nudgeRight();
+
             moveForward();
         }
         else
@@ -223,8 +226,8 @@ shineIR();
             moveForward();
         }    
     }
-    
     delay(20);
+    
     
 
 
