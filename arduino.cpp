@@ -123,14 +123,30 @@ void uTurn() {
 }
 void doubleLeftTurn() {
     // Code for double left turn}
+    turnLeft();
+    delay(1500);
+    moveForward();
+    delay(1500);
+    turnLeft();
 void doubleRightTurn() {
     // Code for double right turn}
+    turnRight();
+    delay(1500);
+    moveForward();
+    delay(1500);
+    turnRight();
 void nudgeLeft() {
-    // Code for nudging slightly to the left for some short interval 
+    // Code for nudging slightly to the left for some short interval
+    //the mbot is facing slightly to the right, therefore, the right wheel should move more to correct the offset
+    leftMotor.run(190);
+    rightMotor.run(-motorSpeed);
 
 }
 void nudgeRight() {
-    // Code for nudging slightly to the right for some short interval 
+    // Code for nudging slightly to the right for some short interval
+    //the mbot is facing slightly to the left, therefore, the left wheel should move more to correct the offset
+    rightMotor.run(-190);
+    leftMotor.run(motorSpeed);
 }
 void shineIR() {
     // Code for turning on the IR emitter only
@@ -172,6 +188,8 @@ pinMode(LDR, INPUT);
 void loop()
 {
 // Read ultrasonic sensing distance (choose an appropriate timeout)
+// Ultrasonic sensor to the outer line of the wheel = 3.5cm
+// IR sensor to the outer line of the wheel = 1.0 cm
 moveForward()
 right_distance = gen_ultrasonic();
 shineIR();
