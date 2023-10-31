@@ -1,4 +1,4 @@
-#define RGBwait 200  //time taken for LDR to stabilise
+#define RGBwait 300  //time taken for LDR to stabilise
 
 //colour indexes according to list
 #define red 0
@@ -8,8 +8,30 @@
 #define purple 4
 #define white 5
 
+#define LDR A0 //Pin of LDR
+
+#define BIT_A_ORANGE A2 // S1
+#define BIT_B_YELLOW A3 // S2
+
+void shineRed() {
+    // Code for turning on the red LED only
+    digitalWrite(BIT_A_ORANGE, LOW); 
+    digitalWrite(BIT_B_YELLOW, LOW); 
+}
+void shineGreen() {
+    // Code for turning on the green LED only
+    digitalWrite(BIT_A_ORANGE, LOW); 
+    digitalWrite(BIT_B_YELLOW, HIGH);
+}
+void shineBlue() {
+    // Code for turning on the blue LED only
+    digitalWrite(BIT_A_ORANGE, HIGH); 
+    digitalWrite(BIT_B_YELLOW, LOW);
+}
+
 //list of rgb values of colours, update more accurate values aft calibration
-float colourList[5][3] = {
+float colourList[6][3] = 
+{
   { 182, 110, 121 },
   { 60, 121, 85 },
   { 97, 166, 145 },
@@ -52,7 +74,7 @@ int detectColour() {
   for (int c = 0; c < 3; c++) {  //red then green then blue
     shine(c);                    //turn on current led
     delay(RGBwait);
-    colourArray[c] = getAvgReading(5);                                        // read ldr avg values for current led
+    colourArray[c] = getAvgReading(10);                                        // read ldr avg values for current led
     colourArray[c] = (colourArray[c] - blackArray[c]) / (greyDiff[c]) * 255;  //calc rgb value
     delay(RGBwait);
   }
@@ -61,16 +83,25 @@ int detectColour() {
   int r = colourArray[red];
   int g = colourArray[green];
   int b = colourArray[blue];
-  if (r > 145) {
-    if (g < 160) {
-      return red;
-    } else if (b < 150) {
+  if (r > 145) 
+  {
+    if (g >160) 
+    {
+      return white;
+    } 
+    
+    if (g >65 ) 
+    {
       return orange;
     }
-    return white;
-  } else if (g > 200) {
+    return red;
+  } 
+  if(g > 110) 
+  {
     return blue;
-  } else if (g > 100) {
+  }
+  if (b < 95) 
+  {
     return green;
   }
   return purple;
