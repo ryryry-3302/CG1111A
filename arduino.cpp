@@ -3,6 +3,16 @@
 MeBuzzer buzzer;
 MeLineFollower lineFinder(PORT_1);
 
+#define RGBwait 300  //time taken for LDR to stabilise
+
+//colour indexes according to list
+#define red 0
+#define green 1
+#define blue 2
+#define orange 3
+#define purple 4
+#define white 5
+
 #define TURNING_TIME_MS 344.5 // The time duration (ms) for turning
 
 #define TIMEOUT 1100 // Max microseconds to wait; choose according to max distance of wall
@@ -34,6 +44,33 @@ MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
 uint8_t motorSpeed = 255;
 uint8_t lowSpeed  = motorSpeed - 150;
 
+
+//list of rgb values of colours, update more accurate values aft calibration
+float colourList[6][3] = 
+{
+  { 182, 110, 121 },
+  { 60, 121, 85 },
+  { 97, 166, 145 },
+  { 182,133, 109 },
+  { 109, 110 ,121 },
+  { 225, 225, 223}
+};
+
+String colourName[6] = 
+{
+    "red",
+    "green",
+    "blue",
+    "orange",
+    "purple",
+    "white"
+};
+
+//floats to hold colour arrays
+float colourArray[] = { 0, 0, 0 };
+float whiteArray[] = { 22, 25, 22 };
+float blackArray[] = { 1, 2, 2 };
+float greyDiff[] = { 21, 23, 20 };
 
 
 double gen_ultrasonic() {
@@ -144,7 +181,6 @@ void nudgeLeft() {
 
     leftMotor.run(motorSpeed); 
     rightMotor.run(-lowSpeed); 
- 
 
 }
 void shineIR() {
@@ -168,13 +204,100 @@ void shineBlue() {
     digitalWrite(BIT_B_YELLOW, LOW);
 }
 
-int detectColour()
-{
-// Shine Red, read LDR after some delay
-// Shine Green, read LDR after some delay
-// Shine Blue, read LDR after some delay
-// Run algorithm for colour decoding
+void shine(int c) {
+  if (c == red) {
+    shineRed();
+  } else if (c == green) {
+    shineGreen();
+  } else {
+    shineBlue();
+  }
 }
+
+int getAvgReading(int times) {
+  //find the average reading for the requested number of times of scanning LDR
+  int reading;
+  int total = 0;
+  //take the reading as many times as requested and add them up
+  for (int i = 0; i < times; i++) {
+    reading = analogRead(LDR);
+    total = reading + total;
+    delay(10);  //LDRwait delay before another ldr reading
+  }
+  //calculate the average and return it
+  return total / times;
+}
+
+int detectColour() {
+  for (int c = 0; c < 3; c++) {  //red then green then blue
+    shine(c);                    //turn on current led
+    delay(RGBwait);
+    colourArray[c] = getAvgReading(10);                                        // read ldr avg values for current led
+    colourArray[c] = (colourArray[c] - blackArray[c]) / (greyDiff[c]) * 255;  //calc rgb value
+    delay(RGBwait);
+  }
+
+  // colour identification
+  int r = colourArray[red];
+  int g = colourArray[green];
+  int b = colourArray[blue];
+  if (r > 145) 
+  {
+    if (g >160) 
+    {
+      return white;
+    } 
+    
+    if (g >65 ) 
+    {
+      return orange;
+    }
+    return red;
+  } 
+  if(g > 110) 
+  {
+    return blue;
+  }
+  if (b < 95) 
+  {
+    return green;
+  }
+  return purple;
+}
+
+void setBalance() {
+  //set white balance
+  Serial.println("Put White Sample For Calibration ...");
+  delay(5000);  //delay for five seconds for getting sample ready
+  //scan the white sample.
+  //go through one colour at a time, set the maximum reading for each colour to the white array
+  for (int i = 0; i <= 2; i++) {
+    shine(i);
+    delay(RGBwait);
+    whiteArray[i] = getAvgReading(5);  //scan 5 times and return the average,
+    delay(RGBwait);
+  }
+
+  //done scanning white, time for the black sample.
+  //set black balance
+  Serial.println("Put Black Sample For Calibration ...");
+  delay(5000);  //delay for five seconds for getting sample ready
+  //go through one colour at a time, set the minimum reading for red, green and blue to the black array
+  for (int i = 0; i <= 2; i++) {
+    shine(i);
+    delay(RGBwait);
+    blackArray[i] = getAvgReading(5);
+    delay(RGBwait);
+
+    //the differnce between the maximum and the minimum gives the range
+    greyDiff[i] = whiteArray[i] - blackArray[i];
+  }
+
+  //delay another 5 seconds for getting ready colour objects
+  Serial.println("Colour Sensor Is Ready.");
+  delay(5000);
+}
+
 
 void calibrate_ir(){
   shineRed();
@@ -193,7 +316,22 @@ void calibrate_ir(){
   leftPID.SetMode(AUTOMATIC);
 }
 
-
+void challenge(int color){
+  if (color == 0)
+  {
+    turnLeft();  
+  }
+  if (color == 1)
+  {
+    turnRight();
+  }
+  if (color == 3){
+    turnRight();
+    stopMotor();
+    delay(1000);
+    turnRight();
+  }
+}
 
 void setup()
 {
@@ -202,14 +340,33 @@ Serial.begin(9600); // to initialize the serial monitor
 pinMode(BIT_A_ORANGE, OUTPUT);
 pinMode(BIT_B_YELLOW, OUTPUT);
 pinMode(LDR, INPUT);
-calibrate_ir();
+
+
+setBalance(); //calibrate colour sensor with white and black
+  
+  //print calibrated values
+  for (int i = 0; i < 3; i ++) {
+    Serial.println(whiteArray[i]);
+  }
+ for (int i = 0; i < 3; i ++) {
+    Serial.println(blackArray[i]);
+  }
+  for (int i = 0; i < 3; i ++) {
+    Serial.println(greyDiff[i]);
+  } 
+  calibrate_ir();
 }
+
 void loop()
 {
     int sensorState = lineFinder.readSensors();
     if (sensorState == S1_IN_S2_IN) //check if on black line
         { 
+           
             stopMotor();
+            delay(1000);
+            int colour = detectColour();
+            challenge(colour);
         }
     else {
        
