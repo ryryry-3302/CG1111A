@@ -5,7 +5,7 @@ MeLineFollower lineFinder(PORT_1);
 
 #define TURNING_TIME_MS 344.5 // The time duration (ms) for turning
 
-#define TIMEOUT 1600 // Max microseconds to wait; choose according to max distance of wall
+#define TIMEOUT 1300 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
 #define ULTRASONIC 10 // Ultrasonic Sensor Pin
 
@@ -21,7 +21,8 @@ MeLineFollower lineFinder(PORT_1);
 double ambient, LeftInput, Output;
 
 //Specify the links and initial tuning parameters
-double Kp=0.5, Ki=0.2, Kd=0;
+double Kp=0.9, Ki=0.2, Kd=0;
+
 PID leftPID(&LeftInput, &Output, &ambient, Kp, Ki, Kd, DIRECT);
 
 
@@ -31,12 +32,9 @@ int left_distance = 0; //distance from left wall
 MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
 MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
 uint8_t motorSpeed = 255;
-uint8_t lowSpeed  = motorSpeed - 50;
+uint8_t lowSpeed  = motorSpeed - 250;
 
-void gen_LeftPID(){
-    LeftInput = analogRead(LDR);
-    leftPID.Compute();
-}
+
 
 double gen_ultrasonic() {
     pinMode(ULTRASONIC, OUTPUT);
@@ -49,8 +47,8 @@ double gen_ultrasonic() {
     long duration = pulseIn(ULTRASONIC, HIGH, TIMEOUT);
     if (duration > 0) {
     double distance = duration / 2.0 / 1000000 * SPEED_OF_SOUND * 100 - 3.40;
-    Serial.print("distance(cm) = ");
-   Serial.println(distance);
+   // Serial.print("distance(cm) = ");
+   // Serial.println(distance);
     return distance;
     }
     else {
@@ -138,13 +136,13 @@ void doubleLeftTurn() {
     }
 void doubleRightTurn() {
     }
-void nudgeLeft() {
+void nudgeRight() {
     leftMotor.run(lowSpeed); 
     rightMotor.run(-motorSpeed);
     }
-void nudgeRight() {
+void nudgeLeft() {
 
-    leftMotor.run(lowSpeed); 
+    leftMotor.run(motorSpeed); 
     rightMotor.run(-lowSpeed); 
  
 
@@ -206,27 +204,29 @@ calibrate_ir();
 void loop()
 {
     int sensorState = lineFinder.readSensors();
-    if (sensorState == S1_IN_S2_IN ) //check if on black line
+    if (false ) //check if on black line
         { 
             stopMotor();
         }
     else {
-        gen_LeftPID();
+       
         shineIR();
         left_distance = analogRead(ir_receiver) - ambient;
         right_distance = gen_ultrasonic();
         if (right_distance != 0)
         {
-            if (right_distance <4.0)
+            if (right_distance <4.5)
             {
                 nudgeLeft();
 
+                delay(60);
                 moveForward();
             }
-            else if (right_distance >=4.7)
+            else if (right_distance >5)
             {
                 nudgeRight();
 
+                delay(60);
                 moveForward();
             }
             else
@@ -234,10 +234,15 @@ void loop()
                 moveForward();
             }    
         }
+        
 
         else if (right_distance == 0 && left_distance < 20)
         {
+            Serial.println(right_distance);
+            LeftInput = analogRead(LDR);
+            leftPID.Compute();
             leftMotor.run((Output/2.2)+150);
+            Serial.println(Output);
             rightMotor.run(-lowSpeed);
         }
         else 
