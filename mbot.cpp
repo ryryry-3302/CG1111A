@@ -239,17 +239,14 @@ void loop()
                 moveForward();
             }    
         }
-        else if (right_distance == 0 && (ambient_without_ir - 3 ) < analogRead(ir_receiver) && analogRead(ir_receiver) < (ambient_without_ir +3))
-        {
-          moveForward();
-        }
+       
         else if (right_distance == 0 && left_distance < 0)
         {
             
-            LeftInput = analogRead(LDR);
+            LeftInput = analogRead(ir_receiver);
             leftPID.Compute();
             leftMotor.run(Output/2 +100);
-            Serial.println(analogRead(LDR));
+            Serial.println(analogRead(Output/2 +100));
            // Serial.println(Output);
             rightMotor.run(-motorSpeed-80);
         }
