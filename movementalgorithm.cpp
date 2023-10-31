@@ -5,7 +5,7 @@ MeLineFollower lineFinder(PORT_1);
 
 #define TURNING_TIME_MS 344.5 // The time duration (ms) for turning
 
-#define TIMEOUT 1300 // Max microseconds to wait; choose according to max distance of wall
+#define TIMEOUT 1100 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
 #define ULTRASONIC 10 // Ultrasonic Sensor Pin
 
@@ -18,10 +18,10 @@ MeLineFollower lineFinder(PORT_1);
 
 
 //Define Variables we'll be connecting to
-double ambient, LeftInput, Output;
+double ambient, LeftInput, Output, ambient_without_ir;
 
 //Specify the links and initial tuning parameters
-double Kp=1.3, Ki=0.2, Kd=0;
+double Kp=1, Ki=0.2, Kd=0;
 
 PID leftPID(&LeftInput, &Output, &ambient, Kp, Ki, Kd, DIRECT);
 
@@ -177,6 +177,9 @@ int detectColour()
 }
 
 void calibrate_ir(){
+  shineRed();
+  delay(20);
+  ambient_without_ir = analogRead(ir_receiver);
   shineIR();
   delay(200);
   double temp = 0;
@@ -213,16 +216,18 @@ void loop()
         shineIR();
         left_distance = analogRead(ir_receiver) - ambient;
         right_distance = gen_ultrasonic();
-        if (false) //right_distance != 0
-        {
-            if (right_distance <4.5)
+        if (right_distance != 0)
+        {   
+            delay(20);
+            right_distance = gen_ultrasonic();
+            if (right_distance <5)
             {
                 nudgeLeft();
 
                 delay(60);
                 moveForward();
             }
-            else if (right_distance >5)
+            else if (right_distance >5.5)
             {
                 nudgeRight();
 
@@ -234,17 +239,19 @@ void loop()
                 moveForward();
             }    
         }
-        
-
-        else if (right_distance == 0 && left_distance < 20)
+        else if (right_distance == 0 && (ambient_without_ir - 3 ) < analogRead(ir_receiver) && analogRead(ir_receiver) < (ambient_without_ir +3))
+        {
+          moveForward();
+        }
+        else if (right_distance == 0 && left_distance < 0)
         {
             
             LeftInput = analogRead(LDR);
             leftPID.Compute();
-            leftMotor.run(Output);
-
-            Serial.println(Output);
-            rightMotor.run(-motorSpeed-40);
+            leftMotor.run(Output/2 +100);
+            Serial.println(analogRead(LDR));
+           // Serial.println(Output);
+            rightMotor.run(-motorSpeed-80);
         }
         else 
         {
