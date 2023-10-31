@@ -51,3 +51,31 @@ Create code for colour sensor
 create functions for colour challenges
 route correction half
 
+
+## Color list 
+RED {182, 110, 121}
+green{60, 121, 85}
+blue {97, 166, 145}
+orange {182,133, 109}
+purple {109, 110 ,121}
+White{255,255,223}
+
+
+
+if red >145
+     if green <160
+        red 
+    else
+        if <150
+        orange 
+            else
+                white
+
+else
+    if green>200
+        blue  
+    
+    else if green >100
+        green
+    else
+        purple
