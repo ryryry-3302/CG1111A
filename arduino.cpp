@@ -1,38 +1,40 @@
 #include <MeMCore.h>
+#include <PID_v1.h>
 MeBuzzer buzzer;
 MeLineFollower lineFinder(PORT_1);
 
 #define TURNING_TIME_MS 344.5 // The time duration (ms) for turning
 
-#define TIMEOUT 1600 // Max microseconds to wait; choose according to max distance of wall
+#define TIMEOUT 1100 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
-#define ULTRASONIC 10
+#define ULTRASONIC 10 // Ultrasonic Sensor Pin
 
-#define BIT_A_ORANGE A2
-#define BIT_B_YELLOW A3
-#define LDR A0
-#define ir_receiver A1
+#define BIT_A_ORANGE A2 // S1
+#define BIT_B_YELLOW A3 // S2
 
-int sensorState = lineFinder.readSensors(); // read the line sensor's state
-
-int  ambient  = 680;
+#define LDR A0 //Pin of LDR
+#define ir_receiver A1 // Pin of IR Receiver
 
 
-float colourArray[] = {0,0,0};
-float whiteArray[] = {0,0,0};
-float blackArray[] = {0,0,0};
-float greyDiff[] = {0,0,0};
 
-int red = 0;
-int green = 0;
-int blue = 0;
-int right_distance = 1;
-int left_distance = 0;
+//Define Variables we'll be connecting to
+double ambient, LeftInput, Output, ambient_without_ir;
+
+//Specify the links and initial tuning parameters
+double Kp=1, Ki=0.2, Kd=0;
+
+PID leftPID(&LeftInput, &Output, &ambient, Kp, Ki, Kd, DIRECT);
+
+
+int right_distance = 1; //distance from right wall
+int left_distance = 0; //distance from left wall
 
 MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
 MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
 uint8_t motorSpeed = 255;
-uint8_t lowSpeed  = motorSpeed - 50;
+uint8_t lowSpeed  = motorSpeed - 150;
+
+
 
 double gen_ultrasonic() {
     pinMode(ULTRASONIC, OUTPUT);
@@ -45,8 +47,8 @@ double gen_ultrasonic() {
     long duration = pulseIn(ULTRASONIC, HIGH, TIMEOUT);
     if (duration > 0) {
     double distance = duration / 2.0 / 1000000 * SPEED_OF_SOUND * 100 - 3.40;
-    Serial.print("distance(cm) = ");
-   Serial.println(distance);
+   // Serial.print("distance(cm) = ");
+   // Serial.println(distance);
     return distance;
     }
     else {
@@ -131,28 +133,16 @@ void uTurn() {
     rightMotor.stop(); 
 }
 void doubleLeftTurn() {
-    // Code for double left turn
-    turnLeft();
-    delay(1500);
-    moveForward();
-    delay(1_GRID_DISTANCE); // Move forward for the distance of 1 grid
-    turnLeft();
     }
 void doubleRightTurn() {
-    // Code for double right turn
-    turnRight();
-    delay(1500);
-    moveForward();
-    delay(1_GRID_DISTANCE); // Move forward for the distance of 1 grid
-    turnRight();
     }
-void nudgeLeft() {
+void nudgeRight() {
     leftMotor.run(lowSpeed); 
     rightMotor.run(-motorSpeed);
     }
-void nudgeRight() {
+void nudgeLeft() {
 
-    leftMotor.run(lowSpeed); 
+    leftMotor.run(motorSpeed); 
     rightMotor.run(-lowSpeed); 
  
 
@@ -186,10 +176,13 @@ int detectColour()
 // Run algorithm for colour decoding
 }
 
-int calibrate_ir(){
+void calibrate_ir(){
+  shineRed();
+  delay(20);
+  ambient_without_ir = analogRead(ir_receiver);
   shineIR();
   delay(200);
-  int temp = 0;
+  double temp = 0;
   for (int i=0; i<5; i++){
     temp += analogRead(ir_receiver);
     delay(30);
@@ -197,6 +190,7 @@ int calibrate_ir(){
   ambient = temp / 5;
   Serial.print("Ambient");
   Serial.println(ambient);
+  leftPID.SetMode(AUTOMATIC);
 }
 
 
@@ -212,27 +206,32 @@ calibrate_ir();
 }
 void loop()
 {
-    
-    if (sensorState == S1_IN_S2_IN ) //check if on black line
+    int sensorState = lineFinder.readSensors();
+    if (sensorState == S1_IN_S2_IN) //check if on black line
         { 
-            stopMotor()
+            stopMotor();
         }
     else {
+       
         shineIR();
         left_distance = analogRead(ir_receiver) - ambient;
         right_distance = gen_ultrasonic();
         if (right_distance != 0)
-        {
-            if (right_distance <4.0)
+        {   
+            delay(20);
+            right_distance = gen_ultrasonic();
+            if (right_distance <5)
             {
                 nudgeLeft();
 
+                delay(60);
                 moveForward();
             }
-            else if (right_distance >=4.7)
+            else if (right_distance >5.5)
             {
                 nudgeRight();
 
+                delay(60);
                 moveForward();
             }
             else
@@ -240,25 +239,19 @@ void loop()
                 moveForward();
             }    
         }
-
-        else if (right_distance == 0 && left_distance < 20)
+        else if (right_distance == 0 && (ambient_without_ir - 3 ) < analogRead(ir_receiver) && analogRead(ir_receiver) < (ambient_without_ir +3))
         {
-            if (left_distance <-20)
-            {
-                nudgeRight();
-
-                moveForward();
-            }
-            else if (left_distance >=5)
-            {
-                nudgeLeft();
-
-                moveForward();
-            }
-            else
-            {
-                moveForward();
-            }
+          moveForward();
+        }
+        else if (right_distance == 0 && left_distance < 0)
+        {
+            
+            LeftInput = analogRead(LDR);
+            leftPID.Compute();
+            leftMotor.run(Output/2 +100);
+            Serial.println(analogRead(LDR));
+           // Serial.println(Output);
+            rightMotor.run(-motorSpeed-80);
         }
         else 
         {
