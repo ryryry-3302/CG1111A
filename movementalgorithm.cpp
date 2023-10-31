@@ -21,7 +21,7 @@ MeLineFollower lineFinder(PORT_1);
 double ambient, LeftInput, Output;
 
 //Specify the links and initial tuning parameters
-double Kp=0.9, Ki=0.2, Kd=0;
+double Kp=1.3, Ki=0.2, Kd=0;
 
 PID leftPID(&LeftInput, &Output, &ambient, Kp, Ki, Kd, DIRECT);
 
@@ -32,7 +32,7 @@ int left_distance = 0; //distance from left wall
 MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
 MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
 uint8_t motorSpeed = 255;
-uint8_t lowSpeed  = motorSpeed - 250;
+uint8_t lowSpeed  = motorSpeed - 150;
 
 
 
@@ -213,7 +213,7 @@ void loop()
         shineIR();
         left_distance = analogRead(ir_receiver) - ambient;
         right_distance = gen_ultrasonic();
-        if (right_distance != 0)
+        if (false) //right_distance != 0
         {
             if (right_distance <4.5)
             {
@@ -238,12 +238,13 @@ void loop()
 
         else if (right_distance == 0 && left_distance < 20)
         {
-            Serial.println(right_distance);
+            
             LeftInput = analogRead(LDR);
             leftPID.Compute();
-            leftMotor.run((Output/2.2)+150);
+            leftMotor.run(Output);
+
             Serial.println(Output);
-            rightMotor.run(-lowSpeed);
+            rightMotor.run(-motorSpeed-40);
         }
         else 
         {
