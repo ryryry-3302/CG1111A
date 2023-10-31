@@ -207,7 +207,7 @@ calibrate_ir();
 void loop()
 {
     int sensorState = lineFinder.readSensors();
-    if (false ) //check if on black line
+    if (sensorState == S1_IN_S2_IN) //check if on black line
         { 
             stopMotor();
         }
