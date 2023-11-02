@@ -3,8 +3,14 @@
 MeBuzzer buzzer;
 MeLineFollower lineFinder(PORT_1);
 
-#define RGBwait 300  //time taken for LDR to stabilise
+#define RGBwait 400  //time taken for LDR to stabilise
 
+
+int e = 329;
+int f = 349;
+int g = 370;
+int d = 277;
+int c = 247;
 //colour indexes according to list
 #define red 0
 #define green 1
@@ -13,9 +19,9 @@ MeLineFollower lineFinder(PORT_1);
 #define purple 4
 #define white 5
 
-#define TURNING_TIME_MS 344.5 // The time duration (ms) for turning
+#define TURNING_TIME_MS 440.5 // The time duration (ms) for turning
 
-#define TIMEOUT 1100 // Max microseconds to wait; choose according to max distance of wall
+#define TIMEOUT 1200 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
 #define ULTRASONIC 10 // Ultrasonic Sensor Pin
 
@@ -102,37 +108,7 @@ void celebrate() {
     int d = 277;
     int c = 247;
     buzzer.tone(e, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(f, 600);
-    buzzer.tone(g, 600);
-    buzzer.tone(g, 600);
-    buzzer.tone(f, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(d, 600);
-    buzzer.tone(c, 600);
-    buzzer.tone(c, 600);
-    buzzer.tone(d, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(d, 600);
-    buzzer.tone(d, 600);
-    buzzer.noTone();
-    delay(500);
-    buzzer.tone(e, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(f, 600);
-    buzzer.tone(g, 600);
-    buzzer.tone(g, 600);
-    buzzer.tone(f, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(d, 600);
-    buzzer.tone(c, 600);
-    buzzer.tone(c, 600);
-    buzzer.tone(d, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(d, 600);
-    buzzer.tone(c, 600);
-    buzzer.tone(c, 600);
+    
 }
 void stopMotor() {
     // Code for stopping motor
@@ -248,8 +224,11 @@ int detectColour() {
       return white;
     } 
     
-    if (g >65 ) 
+    if (g >75 ) 
     {
+      if (r <220){
+        return red;
+      }
       return orange;
     }
     return red;
@@ -267,7 +246,7 @@ int detectColour() {
 
 void setBalance() {
   //set white balance
-  Serial.println("Put White Sample For Calibration ...");
+  //Serial.println("Put White Sample For Calibration ...");
   delay(5000);  //delay for five seconds for getting sample ready
   //scan the white sample.
   //go through one colour at a time, set the maximum reading for each colour to the white array
@@ -280,7 +259,9 @@ void setBalance() {
 
   //done scanning white, time for the black sample.
   //set black balance
-  Serial.println("Put Black Sample For Calibration ...");
+  buzzer.tone(e, 600);
+  
+  //Serial.println("Put Black Sample For Calibration ...");
   delay(5000);  //delay for five seconds for getting sample ready
   //go through one colour at a time, set the minimum reading for red, green and blue to the black array
   for (int i = 0; i <= 2; i++) {
@@ -294,7 +275,9 @@ void setBalance() {
   }
 
   //delay another 5 seconds for getting ready colour objects
-  Serial.println("Colour Sensor Is Ready.");
+  //Serial.println("Colour Sensor Is Ready.");
+  buzzer.tone(e, 600);
+  buzzer.tone(e, 600);
   delay(5000);
 }
 
@@ -325,11 +308,31 @@ void challenge(int color){
   {
     turnRight();
   }
-  if (color == 3){
+  if (color == 2) {
     turnRight();
     stopMotor();
+    moveForward();
+    delay(600);
+    turnRight();    
+
+  }
+
+  if (color == 3){
+    turnLeft();
+    stopMotor();
     delay(1000);
-    turnRight();
+    turnLeft();
+  }
+  if (color == 4) {
+    turnLeft();
+    stopMotor();
+    moveForward();
+    delay(800);
+    turnLeft();    
+
+  }
+  if (color == 5){
+    celebrate();
   }
 }
 

@@ -13,7 +13,7 @@ MeLineFollower lineFinder(PORT_1);
 #define purple 4
 #define white 5
 
-#define TURNING_TIME_MS 344.5 // The time duration (ms) for turning
+#define TURNING_TIME_MS 370 // The time duration (ms) for turning
 
 #define TIMEOUT 1100 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment

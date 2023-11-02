@@ -40,9 +40,9 @@ rightMotor.run(-200);
 Colour Interpretation
 Red Left-turn
 Green Right turn
+Light Blue Two successive right-turns in two grids
 Orange 180° turn within the same grid
 Purple Two successive left-turns in two grids
-Light Blue Two successive right-turns in two grids
 
 To Do List
 Calibrate Ultrasonic sensor done
@@ -53,11 +53,11 @@ route correction half
 
 
 ## Color list 
-RED {182, 110, 121}
-green{60, 121, 85}
-blue {97, 166, 145}
-orange {182,133, 109}
-purple {109, 110 ,121}
+RED {218, 42, 50}
+green{19, 89, 47}
+blue {58, 140, 197}
+orange {235,89, 46}
+purple {117, 76 ,139}
 White{255,255,223}
 
 
