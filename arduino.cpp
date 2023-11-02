@@ -19,7 +19,7 @@ int c = 247;
 #define purple 4
 #define white 5
 
-#define TURNING_TIME_MS 440.5 // The time duration (ms) for turning
+#define TURNING_TIME_MS 420.5 // The time duration (ms) for turning
 
 #define TIMEOUT 1200 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
@@ -219,16 +219,13 @@ int detectColour() {
   int b = colourArray[blue];
   if (r > 145) 
   {
-    if (g >160) 
+    if (g >200) 
     {
       return white;
     } 
     
-    if (g >75 ) 
+    if (g >60 ) 
     {
-      if (r <220){
-        return red;
-      }
       return orange;
     }
     return red;
@@ -312,7 +309,7 @@ void challenge(int color){
     turnRight();
     stopMotor();
     moveForward();
-    delay(600);
+    delay(700);
     turnRight();    
 
   }
@@ -369,7 +366,29 @@ void loop()
             stopMotor();
             delay(1000);
             int colour = detectColour();
+            for (int i = 0; i < 3; i ++) {
+              Serial.println(colourArray[i]);
+            }
+            int orangeness = 0;
+            if (colour == 3){
+              orangeness += 1;
+              while (orangeness <4 && orangeness != 0){
+                colour = detectColour();
+                if (orangeness == 3){
+                  challenge(3);
+                }
+                if (colour == 3){
+                  orangeness +=1;
+                }
+                else
+                {
+                  orangeness = 0;
+                }
+              }
+            }
+            if (colour != 3){
             challenge(colour);
+            }
         }
     else {
        
@@ -380,14 +399,14 @@ void loop()
         {   
             delay(20);
             right_distance = gen_ultrasonic();
-            if (right_distance <5)
+            if (right_distance <5.5)
             {
                 nudgeLeft();
 
                 delay(60);
                 moveForward();
             }
-            else if (right_distance >5.5)
+            else if (right_distance >6)
             {
                 nudgeRight();
 
@@ -414,7 +433,7 @@ void loop()
         {
             moveForward();
         }
-        delay(20);
+        
     }
        
 
