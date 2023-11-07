@@ -3,7 +3,7 @@
 MeBuzzer buzzer;
 MeLineFollower lineFinder(PORT_1);
 
-#define RGBwait 400  //time taken for LDR to stabilise
+#define RGBwait 300  //time taken for LDR to stabilise
 
 
 int e = 329;
@@ -19,7 +19,7 @@ int c = 247;
 #define purple 4
 #define white 5
 
-#define TURNING_TIME_MS 420.5 // The time duration (ms) for turning
+#define TURNING_TIME_MS 400.5 // The time duration (ms) for turning
 
 #define TIMEOUT 1200 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
@@ -30,6 +30,9 @@ int c = 247;
 
 #define LDR A0 //Pin of LDR
 #define ir_receiver A1 // Pin of IR Receiver
+
+int rcompensate = 0;
+int lcompensate = 0;
 
 
 
@@ -108,37 +111,7 @@ void celebrate() {
     int d = 277;
     int c = 247;
     buzzer.tone(e, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(f, 600);
-    buzzer.tone(g, 600);
-    buzzer.tone(g, 600);
-    buzzer.tone(f, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(d, 600);
-    buzzer.tone(c, 600);
-    buzzer.tone(c, 600);
-    buzzer.tone(d, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(d, 600);
-    buzzer.tone(d, 600);
-    buzzer.noTone();
-    delay(500);
-    buzzer.tone(e, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(f, 600);
-    buzzer.tone(g, 600);
-    buzzer.tone(g, 600);
-    buzzer.tone(f, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(d, 600);
-    buzzer.tone(c, 600);
-    buzzer.tone(c, 600);
-    buzzer.tone(d, 600);
-    buzzer.tone(e, 600);
-    buzzer.tone(d, 600);
-    buzzer.tone(c, 600);
-    buzzer.tone(c, 600);
+   
     
 }
 void stopMotor() {
@@ -275,7 +248,7 @@ int detectColour() {
 void setBalance() {
   //set white balance
   //Serial.println("Put White Sample For Calibration ...");
-  delay(5000);  //delay for five seconds for getting sample ready
+  delay(3000);  //delay for five seconds for getting sample ready
   //scan the white sample.
   //go through one colour at a time, set the maximum reading for each colour to the white array
   for (int i = 0; i <= 2; i++) {
@@ -290,7 +263,7 @@ void setBalance() {
   buzzer.tone(e, 600);
   
   //Serial.println("Put Black Sample For Calibration ...");
-  delay(5000);  //delay for five seconds for getting sample ready
+  delay(3000);  //delay for five seconds for getting sample ready
   //go through one colour at a time, set the minimum reading for red, green and blue to the black array
   for (int i = 0; i <= 2; i++) {
     shine(i);
@@ -306,7 +279,7 @@ void setBalance() {
   //Serial.println("Colour Sensor Is Ready.");
   buzzer.tone(e, 600);
   buzzer.tone(e, 600);
-  delay(5000);
+  delay(2000);
 }
 
 
@@ -340,7 +313,7 @@ void challenge(int color){
     turnRight();
     stopMotor();
     moveForward();
-    delay(700);
+    delay(750);
     turnRight();    
 
   }
@@ -355,7 +328,7 @@ void challenge(int color){
     turnLeft();
     stopMotor();
     moveForward();
-    delay(800);
+    delay(750);
     turnLeft();    
 
   }
@@ -395,7 +368,7 @@ void loop()
         { 
            
             stopMotor();
-            delay(1000);
+            delay(100);
             int colour = detectColour();
             for (int i = 0; i < 3; i ++) {
               Serial.println(colourArray[i]);
@@ -422,6 +395,37 @@ void loop()
             }
         }
     else {
+
+        if (lcompensate >= 40){
+          
+          for (int i = 0; i <= 40; i++){
+            nudgeLeft();
+            delay(30);
+            if (sensorState == S1_IN_S2_IN){
+              stopMotor();
+              lcompensate = 0;
+              break;
+            }
+          }
+          lcompensate = 0;
+          moveForward();
+        }
+         if (rcompensate >= 40){
+          for (int i = 0; i<= 40; i++){
+            nudgeRight();
+            delay(30);
+
+            if (sensorState == S1_IN_S2_IN){
+              stopMotor();
+              rcompensate = 0;
+              break;
+            }
+          }
+          rcompensate = 0;
+          moveForward();
+        }
+        
+
        
         shineIR();
         left_distance = analogRead(ir_receiver) - ambient;
@@ -430,29 +434,37 @@ void loop()
         {   
             delay(20);
             right_distance = gen_ultrasonic();
-            if (right_distance <5.5)
+            if (right_distance <6.1)
             {
                 nudgeLeft();
-
-                delay(60);
+                lcompensate =0;
+                rcompensate +=1;
+                delay(30);
                 moveForward();
             }
-            else if (right_distance >6)
+            else if (right_distance >6.9)
             {
                 nudgeRight();
-
-                delay(60);
+                rcompensate = 0;
+                lcompensate +=1;
+                delay(30);
                 moveForward();
             }
             else
-            {
+            {   
+                rcompensate = 0;
+                lcompensate = 0;
+                calibrate_ir();
                 moveForward();
+                delay(20);
+                
             }    
         }
        
         else if (right_distance == 0 && left_distance < 0)
         {
-            
+            rcompensate = 0;
+            lcompensate = 0;
             LeftInput = analogRead(ir_receiver);
             leftPID.Compute();
             leftMotor.run(Output/2 +100);
@@ -464,7 +476,8 @@ void loop()
         {
             moveForward();
         }
-        
+        Serial.println("lcompensate: ");
+        Serial.println(lcompensate);
     }
        
 
