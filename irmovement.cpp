@@ -16,7 +16,7 @@ MeLineFollower lineFinder(PORT_1);
 #define ir_receiver A1 // Pin of IR Receiver
 
 
-
+unsigned long current_time = 0;
 //Define Variables we'll be connecting to
 double ambient, LeftInput, Output, ambient_without_ir;
 
@@ -176,21 +176,26 @@ int detectColour()
 // Run algorithm for colour decoding
 }
 
-void calibrate_ir(){
+double ambient_ir(){
+  double voltage = 0;
   shineRed();
-  delay(20);
-  ambient_without_ir = analogRead(ir_receiver);
-  shineIR();
-  delay(200);
-  double temp = 0;
-  for (int i=0; i<5; i++){
-    temp += analogRead(ir_receiver);
-    delay(30);
+  if(millis() > current_time + 30)
+  { 
+    ambient_without_ir = analogRead(ir_receiver);
+    shineIR();
   }
-  ambient = temp / 5;
-  Serial.print("Ambient");
-  Serial.println(ambient);
-  leftPID.SetMode(AUTOMATIC);
+  
+  if (millis() > current_time + 60){
+    current_time=millis();
+    double temp = 0;
+    for (int i=0; i<5; i++){
+    temp += analogRead(ir_receiver);
+    voltage = ambient_without_ir - temp / 5;
+  }
+  
+  }
+   
+  return voltage;
 }
 
 
@@ -202,61 +207,44 @@ Serial.begin(9600); // to initialize the serial monitor
 pinMode(BIT_A_ORANGE, OUTPUT);
 pinMode(BIT_B_YELLOW, OUTPUT);
 pinMode(LDR, INPUT);
-calibrate_ir();
+delay(100);
+ambient = ambient_ir();
+Serial.print("ambient");
+Serial.println(ambient);
+leftPID.SetMode(AUTOMATIC);
 }
 void loop()
 {
-    int sensorState = lineFinder.readSensors();
-    if (sensorState == S1_IN_S2_IN) //check if on black line
-        { 
-            stopMotor();
+    
+        LeftInput = ambient_ir();
+        if( LeftInput != 0){
+        Serial.println();
         }
-    else {
-       
-        shineIR();
-        left_distance = analogRead(ir_receiver) - ambient;
-        right_distance = gen_ultrasonic();
-        if (right_distance != 0)
-        {   
-            delay(20);
-            right_distance = gen_ultrasonic();
-            if (right_distance <5)
-            {
-                nudgeLeft();
 
-                delay(60);
-                moveForward();
-            }
-            else if (right_distance >5.5)
-            {
-                nudgeRight();
+        if ((ambient - LeftInput < 35) && LeftInput != 0){ 
 
-                delay(60);
-                moveForward();
-            }
-            else
-            {
-                moveForward();
-            }    
+        if(ambient - LeftInput < 25){
+          nudgeRight();
+          delay(20);
+        }
+        else if (ambient - LeftInput > 30){
+          nudgeLeft();
+          delay(20);
+
         }
        
-        else if (right_distance == 0 && left_distance < 0)
-        {
-            
-            LeftInput = analogRead(ir_receiver);
-            leftPID.Compute();
-            leftMotor.run(Output/2 +100);
-            Serial.println(analogRead(Output/2 +100));
-           // Serial.println(Output);
-            rightMotor.run(-motorSpeed-80);
+        else{
+          leftMotor.run(lowSpeed); // Positive: wheel turns clockwise
+          rightMotor.run(-lowSpeed);
         }
-        else 
-        {
-            moveForward();
         }
-        delay(20);
-    }
-       
+        else{
+          leftMotor.run(lowSpeed); // Positive: wheel turns clockwise
+          rightMotor.run(-lowSpeed);
+        }
+
+        
+
 
    
     
