@@ -4,6 +4,7 @@ MeBuzzer buzzer;
 MeLineFollower lineFinder(PORT_1);
 
 #define RGBwait 300  //time taken for LDR to stabilise
+unsigned long current_time = 0;
 
 
 int e = 329;
@@ -11,6 +12,7 @@ int f = 349;
 int g = 370;
 int d = 277;
 int c = 247;
+int status = 0;
 //colour indexes according to list
 #define red 0
 #define green 1
@@ -21,7 +23,7 @@ int c = 247;
 
 #define TURNING_TIME_MS 400.5 // The time duration (ms) for turning
 
-#define TIMEOUT 1000 // Max microseconds to wait; choose according to max distance of wall
+#define TIMEOUT 1200 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
 #define ULTRASONIC 10 // Ultrasonic Sensor Pin
 
@@ -45,8 +47,8 @@ double Kp=1, Ki=0.2, Kd=0;
 PID leftPID(&LeftInput, &Output, &ambient, Kp, Ki, Kd, DIRECT);
 
 
-int right_distance = 1; //distance from right wall
-int left_distance = 0; //distance from left wall
+double right_distance = 1; //distance from right wall
+double left_distance = 0; //distance from left wall
 
 MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
 MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
@@ -283,22 +285,29 @@ void setBalance() {
 }
 
 
-void calibrate_ir(){
-  shineRed();
-  delay(20);
-  ambient_without_ir = analogRead(ir_receiver);
-  shineIR();
-  delay(200);
-  double temp = 0;
-  for (int i=0; i<5; i++){
-    temp += analogRead(ir_receiver);
-    delay(30);
+double ambient_ir(){
+  double voltage = 0;
+
+  if(millis() > current_time + 30)
+  { 
+    ambient_without_ir = analogRead(ir_receiver);
+    shineIR();
   }
-  ambient = temp / 5;
-  Serial.print("Ambient");
-  Serial.println(ambient);
-  leftPID.SetMode(AUTOMATIC);
+  
+  if (millis() > current_time + 60){
+    current_time=millis();
+    double temp = 0;
+    for (int i=0; i<5; i++){
+    temp += analogRead(ir_receiver);
+    voltage = ambient_without_ir - temp / 5;
+    shineRed();
+  }
+  
+  }
+   
+  return voltage;
 }
+
 
 void challenge(int color){
   if (color == 0)
@@ -346,6 +355,7 @@ pinMode(BIT_B_YELLOW, OUTPUT);
 pinMode(LDR, INPUT);
 
 
+
 setBalance(); //calibrate colour sensor with white and black
   
   //print calibrated values
@@ -358,12 +368,30 @@ setBalance(); //calibrate colour sensor with white and black
   for (int i = 0; i < 3; i ++) {
     Serial.println(greyDiff[i]);
   } 
-  calibrate_ir();
+ 
+  Serial.print("ambient");
+  Serial.println(ambient);
 }
 
 void loop()
 {
+    if (analogRead(A7) < 100) { // If push button is pushed, the value will be very low
+    status += 1; // Toggle status
+    delay(500);
+    buzzer.tone(e, 600);
+
+   
+    }
+    if (status == 1){
+      shineRed();
+      delay(20);
+      ambient = ambient_ir();
+      buzzer.tone(e, 600);
+      status += 1;
+      
+    }
     int sensorState = lineFinder.readSensors();
+    if(status == 3){
     if (sensorState == S1_IN_S2_IN) //check if on black line
         { 
            
@@ -396,11 +424,11 @@ void loop()
         }
     else {
 
-        if (lcompensate >= 40){
+        if (lcompensate >= 100){
           
-          for (int i = 0; i <= 40; i++){
+          for (int i = 0; i <= 20; i++){
             nudgeLeft();
-            delay(30);
+            delay(20);
             if (sensorState == S1_IN_S2_IN){
               stopMotor();
               lcompensate = 0;
@@ -410,10 +438,10 @@ void loop()
           lcompensate = 0;
           moveForward();
         }
-         if (rcompensate >= 40){
-          for (int i = 0; i<= 40; i++){
+         if (rcompensate >= 100){
+          for (int i = 0; i<=20; i++){
             nudgeRight();
-            delay(30);
+            delay(20);
 
             if (sensorState == S1_IN_S2_IN){
               stopMotor();
@@ -427,58 +455,67 @@ void loop()
         
 
        
-        shineIR();
-        left_distance = analogRead(ir_receiver) - ambient;
+        LeftInput = ambient_ir();
         right_distance = gen_ultrasonic();
         if (right_distance != 0)
         {   
-            delay(20);
-            right_distance = gen_ultrasonic();
-            if (right_distance <6.1)
+            Serial.println(right_distance);
+            if (right_distance <5.1)
             {
                 nudgeLeft();
+                //Serial.println("nudging left");
                 lcompensate =0;
                 rcompensate +=1;
-                delay(30);
+                delay(20);
                 moveForward();
             }
-            else if (right_distance >6.9)
+            else if (right_distance >5.9)
             {
                 nudgeRight();
+              //  Serial.println("nudging right");
+
                 rcompensate = 0;
                 lcompensate +=1;
-                delay(30);
+                delay(20);
                 moveForward();
             }
             else
             {   
                 rcompensate = 0;
                 lcompensate = 0;
-                calibrate_ir();
                 moveForward();
                 delay(20);
                 
             }    
         }
-       
-        else if (right_distance == 0 && left_distance < 0)
+        
+
+        if ((ambient - LeftInput > 120) && (LeftInput != 0) && right_distance == 0)
         {
-            rcompensate = 0;
-            lcompensate = 0;
-            LeftInput = analogRead(ir_receiver);
-            leftPID.Compute();
-            leftMotor.run(Output/2 +100);
-            Serial.println(analogRead(Output/2 +100));
-           // Serial.println(Output);
-            rightMotor.run(-motorSpeed-80);
+          
+          if(ambient - LeftInput > 140){
+          Serial.println("nudgeRight");
+          nudgeRight();
+          delay(20);
+          }
+          else if (ambient - LeftInput < 135){
+          nudgeLeft();
+          delay(20);
+          }
+       
+        else{
+          leftMotor.run(lowSpeed); // Positive: wheel turns clockwise
+          rightMotor.run(-lowSpeed);
+        }
         }
         else 
         {
-            moveForward();
+          leftMotor.run(lowSpeed); // Positive: wheel turns clockwise
+          rightMotor.run(-lowSpeed);
         }
-        Serial.println("lcompensate: ");
-        Serial.println(lcompensate);
+        
     }
+  }
        
 
    
