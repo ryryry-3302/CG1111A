@@ -113,6 +113,37 @@ void celebrate() {
     int d = 277;
     int c = 247;
     buzzer.tone(e, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(f, 600);
+    buzzer.tone(g, 600);
+    buzzer.tone(g, 600);
+    buzzer.tone(f, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(d, 600);
+    buzzer.noTone();
+    delay(500);
+    buzzer.tone(e, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(f, 600);
+    buzzer.tone(g, 600);
+    buzzer.tone(g, 600);
+    buzzer.tone(f, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(c, 600);
    
     
 }
