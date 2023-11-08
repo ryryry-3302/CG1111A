@@ -113,6 +113,37 @@ void celebrate() {
     int d = 277;
     int c = 247;
     buzzer.tone(e, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(f, 600);
+    buzzer.tone(g, 600);
+    buzzer.tone(g, 600);
+    buzzer.tone(f, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(d, 600);
+    buzzer.noTone();
+    delay(500);
+    buzzer.tone(e, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(f, 600);
+    buzzer.tone(g, 600);
+    buzzer.tone(g, 600);
+    buzzer.tone(f, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(c, 600);
    
     
 }
@@ -396,6 +427,9 @@ void loop()
         { 
            
             stopMotor();
+            
+                rcompensate = 0;
+                lcompensate = 0;
             delay(100);
             int colour = detectColour();
             for (int i = 0; i < 3; i ++) {
@@ -424,11 +458,11 @@ void loop()
         }
     else {
 
-        if (lcompensate >= 100){
+        if (lcompensate >= 30){
           
-          for (int i = 0; i <= 20; i++){
+          for (int i = 0; i <= 30; i++){
             nudgeLeft();
-            delay(20);
+            delay(10);
             if (sensorState == S1_IN_S2_IN){
               stopMotor();
               lcompensate = 0;
@@ -438,10 +472,10 @@ void loop()
           lcompensate = 0;
           moveForward();
         }
-         if (rcompensate >= 100){
-          for (int i = 0; i<=20; i++){
+         if (rcompensate >= 30){
+          for (int i = 0; i<=30; i++){
             nudgeRight();
-            delay(20);
+            delay(10);
 
             if (sensorState == S1_IN_S2_IN){
               stopMotor();
@@ -497,21 +531,33 @@ void loop()
           Serial.println("nudgeRight");
           nudgeRight();
           delay(20);
+          
+                rcompensate = 0;
+                lcompensate = 0;
           }
           else if (ambient - LeftInput < 135){
           nudgeLeft();
           delay(20);
+          
+                rcompensate = 0;
+                lcompensate = 0;
           }
        
         else{
           leftMotor.run(lowSpeed); // Positive: wheel turns clockwise
           rightMotor.run(-lowSpeed);
+          
+                rcompensate = 0;
+                lcompensate = 0;
         }
         }
         else 
         {
           leftMotor.run(lowSpeed); // Positive: wheel turns clockwise
           rightMotor.run(-lowSpeed);
+          
+                rcompensate = 0;
+                lcompensate = 0;
         }
         
     }

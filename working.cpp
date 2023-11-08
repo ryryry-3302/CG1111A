@@ -427,6 +427,9 @@ void loop()
         { 
            
             stopMotor();
+            
+                rcompensate = 0;
+                lcompensate = 0;
             delay(100);
             int colour = detectColour();
             for (int i = 0; i < 3; i ++) {
@@ -528,21 +531,33 @@ void loop()
           Serial.println("nudgeRight");
           nudgeRight();
           delay(20);
+          
+                rcompensate = 0;
+                lcompensate = 0;
           }
           else if (ambient - LeftInput < 135){
           nudgeLeft();
           delay(20);
+          
+                rcompensate = 0;
+                lcompensate = 0;
           }
        
         else{
           leftMotor.run(lowSpeed); // Positive: wheel turns clockwise
           rightMotor.run(-lowSpeed);
+          
+                rcompensate = 0;
+                lcompensate = 0;
         }
         }
         else 
         {
           leftMotor.run(lowSpeed); // Positive: wheel turns clockwise
           rightMotor.run(-lowSpeed);
+          
+                rcompensate = 0;
+                lcompensate = 0;
         }
         
     }
