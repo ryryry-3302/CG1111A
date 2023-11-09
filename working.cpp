@@ -3,7 +3,7 @@
 MeBuzzer buzzer;
 MeLineFollower lineFinder(PORT_1);
 
-#define RGBwait 300  //time taken for LDR to stabilise
+#define RGBwait 60  //time taken for LDR to stabilise
 unsigned long current_time = 0;
 
 
@@ -21,7 +21,7 @@ int status = 0;
 #define purple 4
 #define white 5
 
-#define TURNING_TIME_MS 395.5 // The time duration (ms) for turning
+#define TURNING_TIME_MS 400.5 // The time duration (ms) for turning
 
 #define TIMEOUT 1200 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
@@ -312,7 +312,7 @@ void setBalance() {
   //Serial.println("Colour Sensor Is Ready.");
   buzzer.tone(e, 600);
   buzzer.tone(e, 600);
-  delay(2000);
+  
 }
 
 
@@ -431,7 +431,7 @@ void loop()
             
                 rcompensate = 0;
                 lcompensate = 0;
-            delay(100);
+            delay(20);
             int colour = detectColour();
             for (int i = 0; i < 3; i ++) {
               Serial.println(colourArray[i]);
@@ -498,7 +498,7 @@ void loop()
         right_distance = gen_ultrasonic();
         if (right_distance != 0)
         {   
-            delay(20);
+            delay(15);
 
              right_distance = gen_ultrasonic();
 
