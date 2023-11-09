@@ -21,7 +21,7 @@ int status = 0;
 #define purple 4
 #define white 5
 
-#define TURNING_TIME_MS 380.5 // The time duration (ms) for turning
+#define TURNING_TIME_MS 395.5 // The time duration (ms) for turning
 
 #define TIMEOUT 1200 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
@@ -353,7 +353,7 @@ void challenge(int color){
     turnRight();
     stopMotor();
     moveForward();
-    delay(700);
+    delay(750);
     turnRight();    
 
   }
@@ -368,7 +368,7 @@ void challenge(int color){
     turnLeft();
     stopMotor();
     moveForward();
-    delay(850);
+    delay(1000);
     turnLeft();    
 
   }
@@ -441,7 +441,7 @@ void loop()
               orangeness += 1;
               while (orangeness <4 && orangeness != 0){
                 colour = detectColour();
-                if (orangeness == 3){
+                if (orangeness == 2){
                   challenge(3);
                 }
                 if (colour == 3){
