@@ -21,7 +21,7 @@ int status = 0;
 #define purple 4
 #define white 5
 
-#define TURNING_TIME_MS 400.5 // The time duration (ms) for turning
+#define TURNING_TIME_MS 410.5 // The time duration (ms) for turning
 
 #define TIMEOUT 1200 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
@@ -353,7 +353,7 @@ void challenge(int color){
     turnRight();
     stopMotor();
     moveForward();
-    delay(750);
+    delay(850);
     turnRight();    
 
   }
@@ -368,7 +368,7 @@ void challenge(int color){
     turnLeft();
     stopMotor();
     moveForward();
-    delay(750);
+    delay(950);
     turnLeft();    
 
   }
@@ -424,6 +424,7 @@ void loop()
     int sensorState = lineFinder.readSensors();
     if(status == 3){
     if (sensorState == S1_IN_S2_IN) //check if on black line
+    
         { 
            
             stopMotor();
@@ -458,24 +459,26 @@ void loop()
         }
     else {
 
-        if (lcompensate >= 30){
+        if (lcompensate >= 7){
           
-          for (int i = 0; i <= 30; i++){
+          for (int i = 0; i <= 3; i++){
             nudgeLeft();
-            delay(10);
+            delay(2);
             if (sensorState == S1_IN_S2_IN){
               stopMotor();
               lcompensate = 0;
               break;
             }
           }
+          nudgeRight();
+          delay(5);
           lcompensate = 0;
           moveForward();
         }
-         if (rcompensate >= 30){
-          for (int i = 0; i<=30; i++){
+         if (rcompensate >= 3){
+          for (int i = 0; i<=4; i++){
             nudgeRight();
-            delay(10);
+            delay(2);
 
             if (sensorState == S1_IN_S2_IN){
               stopMotor();
@@ -483,6 +486,8 @@ void loop()
               break;
             }
           }
+          nudgeLeft();
+          delay(5);
           rcompensate = 0;
           moveForward();
         }
@@ -493,8 +498,11 @@ void loop()
         right_distance = gen_ultrasonic();
         if (right_distance != 0)
         {   
-            Serial.println(right_distance);
-            if (right_distance <5.1)
+            delay(20);
+
+             right_distance = gen_ultrasonic();
+
+            if (right_distance <5)
             {
                 nudgeLeft();
                 //Serial.println("nudging left");
@@ -522,30 +530,31 @@ void loop()
                 
             }    
         }
-        
+        if ((ambient - LeftInput > 30)){
+         // Serial.println(ambient - LeftInput);
 
-        if ((ambient - LeftInput > 120) && (LeftInput != 0) && right_distance == 0)
+        }
+
+        if ((ambient - LeftInput > 100) && (LeftInput != 0) && right_distance == 0)
         {
           
-          if(ambient - LeftInput > 140){
-          Serial.println("nudgeRight");
-          nudgeRight();
-          delay(20);
+          if(ambient - LeftInput > 110){
+          //nudgeRight();
+          //delay(20);
           
                 rcompensate = 0;
                 lcompensate = 0;
           }
-          else if (ambient - LeftInput < 135){
-          nudgeLeft();
-          delay(20);
+          else if (ambient - LeftInput < 102){
+          //nudgeLeft();
+          //delay(20);
           
                 rcompensate = 0;
                 lcompensate = 0;
           }
        
         else{
-          leftMotor.run(lowSpeed); // Positive: wheel turns clockwise
-          rightMotor.run(-lowSpeed);
+          moveForward();
           
                 rcompensate = 0;
                 lcompensate = 0;
@@ -553,8 +562,7 @@ void loop()
         }
         else 
         {
-          leftMotor.run(lowSpeed); // Positive: wheel turns clockwise
-          rightMotor.run(-lowSpeed);
+            moveForward();
           
                 rcompensate = 0;
                 lcompensate = 0;
