@@ -3,7 +3,7 @@
 MeBuzzer buzzer;
 MeLineFollower lineFinder(PORT_1);
 
-#define RGBwait 60  //time taken for LDR to stabilise
+#define RGBwait 100  //time taken for LDR to stabilise
 unsigned long current_time = 0;
 
 
@@ -79,9 +79,9 @@ String colourName[6] =
 
 //floats to hold colour arrays
 float colourArray[] = { 0, 0, 0 };
-float whiteArray[] = { 22, 25, 22 };
-float blackArray[] = { 1, 2, 2 };
-float greyDiff[] = { 21, 23, 20 };
+float whiteArray[] = { 28, 43, 67 };
+float blackArray[] = { 9, 11, 20 };
+float greyDiff[] = { 19, 32, 47 };
 
 
 double gen_ultrasonic() {
@@ -254,6 +254,9 @@ int detectColour() {
   int r = colourArray[red];
   int g = colourArray[green];
   int b = colourArray[blue];
+     for (int i = 0; i < 3; i ++) {
+              Serial.println(colourArray[i]);
+              }
   if (r > 200) 
   {
     if (g >160) 
@@ -263,26 +266,26 @@ int detectColour() {
       return white;
     } 
     
-    if (g > b ) 
+    if (abs(g-b)<25) 
     {
-      Serial.println("orange");
-      return orange;
-    }
       Serial.println("red");
+      return red;
+    }
+      Serial.println("orange");
 
-    return red;
+    return orange;
   } 
-  if(g > 110) 
-  {
-      Serial.println("blue");
-
-    return blue;
-  }
-  if (b < 95) 
+  if(b < 120) 
   {
       Serial.println("green");
 
     return green;
+  }
+  if (r < 120 && b > 170) 
+  {
+      Serial.println("blue");
+
+    return blue;
   }
       Serial.println("purple");
 
@@ -391,10 +394,13 @@ void challenge(int color){
 void setup()
 {
 // Configure pinMode for A0, A1, A2, A3
+
 Serial.begin(9600); // to initialize the serial monitor
 pinMode(BIT_A_ORANGE, OUTPUT);
 pinMode(BIT_B_YELLOW, OUTPUT);
 pinMode(LDR, INPUT);
+shineRed();
+delay(20);
 
 
 
@@ -404,7 +410,7 @@ setBalance(); //calibrate colour sensor with white and black
   for (int i = 0; i < 3; i ++) {
     Serial.println(whiteArray[i]);
   }
- for (int i = 0; i < 3; i ++) {
+  for (int i = 0; i < 3; i ++) {
     Serial.println(blackArray[i]);
   }
   for (int i = 0; i < 3; i ++) {
@@ -444,16 +450,15 @@ void loop()
                 lcompensate = 0;
             delay(20);
             int colour = detectColour();
-            for (int i = 0; i < 3; i ++) {
-              Serial.println(colourArray[i]);
-            }
+            
             int orangeness = 0;
             if (colour == 3){
               orangeness += 1;
-              while (orangeness <4 && orangeness != 0){
+              while (orangeness <5 && orangeness != 0){
                 colour = detectColour();
-                if (orangeness == 2){
-                  challenge(3);
+             
+                if (orangeness == 4){
+                 challenge(colour);
                 }
                 if (colour == 3){
                   orangeness +=1;
@@ -465,7 +470,7 @@ void loop()
               }
             }
             if (colour != 3){
-            challenge(colour);
+           challenge(colour);
             }
         }
     else {
