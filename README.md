@@ -42,6 +42,9 @@ Red Left-turn
 Green Right turn
 Light Blue Two successive right-turns in two grids
 Orange 180° turn within the same grid
+
+
+
 Purple Two successive left-turns in two grids
 
 To Do List
@@ -53,15 +56,23 @@ route correction half
 
 
 ## Color list 
-RED {218, 42, 50}
-green{19, 89, 47}
-blue {58, 140, 197}
-orange {235,89, 46}
-purple {117, 76 ,139}
+RED {239, 45, 45} 
+green{19, 125, 47}
+blue {95, 160, 224}
+orange {235,90, 40}
+purple {159,99  ,145}
 White{255,255,223}
 
 
-
+28.00
+43.00
+67.00
+9.00
+11.00
+20.00
+19.00
+32.00
+47.00
 if red >145
      if green <160
         red 
@@ -79,3 +90,36 @@ else
         green
     else
         purple
+
+
+    buzzer.tone(e, 600);
+    buzzer.tone(f, 600);
+    buzzer.tone(g, 600);
+    buzzer.tone(g, 600);
+    buzzer.tone(f, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(d, 600);
+    buzzer.noTone();
+    delay(500);
+    buzzer.tone(e, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(f, 600);
+    buzzer.tone(g, 600);
+    buzzer.tone(g, 600);
+    buzzer.tone(f, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(e, 600);
+    buzzer.tone(d, 600);
+    buzzer.tone(c, 600);
+    buzzer.tone(c, 600);
