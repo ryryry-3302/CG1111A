@@ -21,7 +21,7 @@ int status = 0;
 #define purple 4
 #define white 5
 
-#define TURNING_TIME_MS 400.5 // The time duration (ms) for turning
+#define TURNING_TIME_MS 410.5 // The time duration (ms) for turning
 
 #define TIMEOUT 1200 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
@@ -257,39 +257,31 @@ int detectColour() {
      for (int i = 0; i < 3; i ++) {
               Serial.println(colourArray[i]);
               }
-  if (r > 200) 
-  {
-    if (g >160) 
-    {
-      Serial.println("white");
-
-      return white;
-    } 
-    
-    if (abs(g-b)<25) 
-    {
-      Serial.println("red");
-      return red;
-    }
-      Serial.println("orange");
-
-    return orange;
-  } 
-  if(b < 120) 
-  {
-      Serial.println("green");
-
+  //check for white
+  if (r> 200 && g >200 && b >200){
+    return white;
+  }
+  //check for green
+  if (g > r && g > b){
     return green;
   }
-  if (r < 120 && b > 170) 
-  {
-      Serial.println("blue");
-
+  //check blue
+  if (b > g && b > r){
+    if (b - r > 65 ){
     return blue;
+    }
+    else
+    return purple;
   }
-      Serial.println("purple");
-
-  return purple;
+  if ( r > g && r > b) {
+    if (r - b < 50) {
+      return purple;
+    }
+  }
+  if (g -b> 25){
+    return orange;
+  }
+  return red;
 }
 
 void setBalance() {
@@ -365,10 +357,14 @@ void challenge(int color){
   }
   if (color == 2) {
     turnRight();
+    nudgeRight();
+    delay(20);
     stopMotor();
     moveForward();
     delay(750);
-    turnRight();    
+    turnRight(); 
+    nudgeRight();
+    delay(20);   
 
   }
 
@@ -450,6 +446,7 @@ void loop()
                 lcompensate = 0;
             delay(20);
             int colour = detectColour();
+            Serial.println(colour);
             
             int orangeness = 0;
             if (colour == 3){
@@ -467,10 +464,10 @@ void loop()
                 {
                   orangeness = 0;
                 }
-              }
+              } 
             }
             if (colour != 3){
-           challenge(colour);
+        challenge(colour);
             }
         }
     else {
