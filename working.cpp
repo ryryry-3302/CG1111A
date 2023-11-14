@@ -79,9 +79,9 @@ String colourName[6] =
 
 //floats to hold colour arrays
 float colourArray[] = { 0, 0, 0 };
-float whiteArray[] = { 28, 43, 67 };
-float blackArray[] = { 9, 11, 20 };
-float greyDiff[] = { 19, 32, 47 };
+float whiteArray[] = { 34, 95, 62 };
+float blackArray[] = { 23, 32, 20 };
+float greyDiff[] = { 11, 63, 42 };
 
 
 double gen_ultrasonic() {
@@ -400,7 +400,7 @@ delay(20);
 
 
 
-setBalance(); //calibrate colour sensor with white and black
+//setBalance(); //calibrate colour sensor with white and black
   
   //print calibrated values
   for (int i = 0; i < 3; i ++) {
@@ -435,7 +435,7 @@ void loop()
       
     }
     int sensorState = lineFinder.readSensors();
-    if(status == 3){
+    if(status >= 3){
     if (sensorState == S1_IN_S2_IN) //check if on black line
     
         { 
@@ -451,10 +451,10 @@ void loop()
             int orangeness = 0;
             if (colour == 3){
               orangeness += 1;
-              while (orangeness <5 && orangeness != 0){
+              while (orangeness <2 && orangeness != 0){
                 colour = detectColour();
              
-                if (orangeness == 4){
+                if (orangeness == 1){
                  challenge(colour);
                 }
                 if (colour == 3){
