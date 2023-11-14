@@ -254,27 +254,38 @@ int detectColour() {
   int r = colourArray[red];
   int g = colourArray[green];
   int b = colourArray[blue];
-  if (r > 145) 
+  if (r > 200) 
   {
-    if (g >200) 
+    if (g >160) 
     {
+      Serial.println("white");
+
       return white;
     } 
     
-    if (g >60 ) 
+    if (g > b ) 
     {
+      Serial.println("orange");
       return orange;
     }
+      Serial.println("red");
+
     return red;
   } 
   if(g > 110) 
   {
+      Serial.println("blue");
+
     return blue;
   }
   if (b < 95) 
   {
+      Serial.println("green");
+
     return green;
   }
+      Serial.println("purple");
+
   return purple;
 }
 
