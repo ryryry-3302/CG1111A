@@ -21,7 +21,9 @@ int status = 0;
 #define purple 4
 #define white 5
 
-#define TURNING_TIME_MS 410.5 // The time duration (ms) for turning
+#define TURNING_TIME_MS 350.5 // The time duration (ms) for turning
+#define forward_blue 800
+#define forward_purple 800
 
 #define TIMEOUT 1200 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
