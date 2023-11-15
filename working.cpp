@@ -79,9 +79,9 @@ String colourName[6] =
 
 //floats to hold colour arrays
 float colourArray[] = { 0, 0, 0 };
-float whiteArray[] = { 34, 95, 62 };
-float blackArray[] = { 23, 32, 20 };
-float greyDiff[] = { 11, 63, 42 };
+float whiteArray[] = { 32, 76, 49 };
+float blackArray[] = { 19, 25, 19 };
+float greyDiff[] = { 13, 51, 30 };
 
 
 double gen_ultrasonic() {
@@ -258,7 +258,7 @@ int detectColour() {
               Serial.println(colourArray[i]);
               }
   //check for white
-  if (r> 200 && g >200 && b >200){
+  if (r > 190 && g >190 && b >190){
     return white;
   }
   //check for green
@@ -357,29 +357,36 @@ void challenge(int color){
   }
   if (color == 2) {
     turnRight();
-    nudgeRight();
-    delay(20);
     stopMotor();
+    delay(100);
     moveForward();
-    delay(750);
+    delay(forward_blue);
+    stopMotor();
+    delay(100);
     turnRight(); 
-    nudgeRight();
-    delay(20);   
+    stopMotor();
+    delay(200);
 
   }
 
   if (color == 3){
     turnLeft();
     stopMotor();
-    delay(1000);
+    delay(500);
     turnLeft();
   }
   if (color == 4) {
+  turnLeft();
+    delay(100);
+    moveForward();
+    
+    delay(forward_purple);
+    stopMotor();
+    delay(100);
+
     turnLeft();
     stopMotor();
-    moveForward();
-    delay(1000);
-    turnLeft();    
+    delay(200);   
 
   }
   if (color == 5){
@@ -455,7 +462,7 @@ void loop()
                 colour = detectColour();
              
                 if (orangeness == 1){
-                 challenge(colour);
+                challenge(colour);
                 }
                 if (colour == 3){
                   orangeness +=1;
@@ -467,7 +474,7 @@ void loop()
               } 
             }
             if (colour != 3){
-        challenge(colour);
+       challenge(colour);
             }
         }
     else {
