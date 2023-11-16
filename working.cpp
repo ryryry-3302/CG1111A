@@ -21,11 +21,11 @@ int status = 0;
 #define purple 4
 #define white 5
 
-#define TURNING_TIME_MS 350.5 // The time duration (ms) for turning
+#define TURNING_TIME_MS 340 // The time duration (ms) for turning
 #define forward_blue 800
-#define forward_purple 800
+#define forward_purple 950
 
-#define TIMEOUT 1200 // Max microseconds to wait; choose according to max distance of wall
+#define TIMEOUT 1100 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
 #define ULTRASONIC 10 // Ultrasonic Sensor Pin
 
@@ -189,13 +189,13 @@ void doubleLeftTurn() {
 void doubleRightTurn() {
     }
 void nudgeRight() {
-    leftMotor.run(lowSpeed); 
+    leftMotor.run(lowSpeed+30); 
     rightMotor.run(-motorSpeed);
     }
 void nudgeLeft() {
 
     leftMotor.run(motorSpeed); 
-    rightMotor.run(-lowSpeed); 
+    rightMotor.run(-lowSpeed-30); 
 
 }
 void shineIR() {
@@ -269,7 +269,7 @@ int detectColour() {
   }
   //check blue
   if (b > g && b > r){
-    if (b - r > 65 ){
+    if (b - r > 85 ){
     return blue;
     }
     else
@@ -355,17 +355,29 @@ void challenge(int color){
   }
   if (color == 1)
   {
-    turnRight();
+    leftMotor.run(-motorSpeed); // Positive: wheel turns clockwise
+    rightMotor.run(-motorSpeed); // Positive: wheel turns clockwise
+    delay(415); // Keep turning left for this time duration
+    leftMotor.stop(); // Stop left motor
+    rightMotor.stop();
   }
   if (color == 2) {
-    turnRight();
+    leftMotor.run(-motorSpeed); // Positive: wheel turns clockwise
+    rightMotor.run(-motorSpeed); // Positive: wheel turns clockwise
+    delay(415); // Keep turning left for this time duration
+    leftMotor.stop(); // Stop left motor
+    rightMotor.stop();
     stopMotor();
     delay(100);
     moveForward();
-    delay(forward_blue);
+    delay(forward_blue-40);
     stopMotor();
     delay(100);
-    turnRight(); 
+    leftMotor.run(-motorSpeed); // Positive: wheel turns clockwise
+    rightMotor.run(-motorSpeed); // Positive: wheel turns clockwise
+    delay(415); // Keep turning left for this time duration
+    leftMotor.stop(); // Stop left motor
+    rightMotor.stop();
     stopMotor();
     delay(200);
 
@@ -476,7 +488,7 @@ void loop()
               } 
             }
             if (colour != 3){
-       challenge(colour);
+            challenge(colour);
             }
         }
     else {
@@ -520,11 +532,11 @@ void loop()
         right_distance = gen_ultrasonic();
         if (right_distance != 0)
         {   
-            delay(15);
+            delay(20);
 
              right_distance = gen_ultrasonic();
 
-            if (right_distance <5)
+            if (right_distance < 4.5)
             {
                 nudgeLeft();
                 //Serial.println("nudging left");
