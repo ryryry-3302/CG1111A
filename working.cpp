@@ -1,18 +1,19 @@
 #include <MeMCore.h>
-#include <PID_v1.h>
+
 MeBuzzer buzzer;
 MeLineFollower lineFinder(PORT_1);
 
 #define RGBwait 100  //time taken for LDR to stabilise
 unsigned long current_time = 0;
 
-
+//music notes
 int e = 329;
 int f = 349;
 int g = 370;
 int d = 277;
 int c = 247;
 int status = 0;
+
 //colour indexes according to list
 #define red 0
 #define green 1
@@ -21,53 +22,45 @@ int status = 0;
 #define purple 4
 #define white 5
 
-#define TURNING_TIME_MS 340 // The time duration (ms) for turning
+//defining timings for the various challenge commands
+#define TURNING_TIME_MS 340 
 #define forward_blue 800
 #define forward_purple 950
-
 #define TIMEOUT 1100 // Max microseconds to wait; choose according to max distance of wall
 #define SPEED_OF_SOUND 340 // Update according to your own experiment
-#define ULTRASONIC 10 // Ultrasonic Sensor Pin
 
+
+#define ULTRASONIC 10 // Ultrasonic Sensor Pin
 #define BIT_A_ORANGE A2 // S1
 #define BIT_B_YELLOW A3 // S2
-
 #define LDR A0 //Pin of LDR
 #define ir_receiver A1 // Pin of IR Receiver
+MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
+MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
 
+
+//initialise right and left distance compensation to prevent overturns on the bollards
 int rcompensate = 0;
 int lcompensate = 0;
 
 
 
-//Define Variables we'll be connecting to
+//variables for IR sensor
 double ambient, LeftInput, Output, ambient_without_ir;
 
-//Specify the links and initial tuning parameters
-double Kp=1, Ki=0.2, Kd=0;
 
-PID leftPID(&LeftInput, &Output, &ambient, Kp, Ki, Kd, DIRECT);
+
 
 
 double right_distance = 1; //distance from right wall
 double left_distance = 0; //distance from left wall
 
-MeDCMotor leftMotor(M1); // assigning leftMotor to port M1
-MeDCMotor rightMotor(M2); // assigning RightMotor to port M2
+//Standardise Motorspeeds
 uint8_t motorSpeed = 255;
 uint8_t lowSpeed  = motorSpeed - 150;
 
 
-//list of rgb values of colours, update more accurate values aft calibration
-float colourList[6][3] = 
-{
-  { 182, 110, 121 },
-  { 60, 121, 85 },
-  { 97, 166, 145 },
-  { 182,133, 109 },
-  { 109, 110 ,121 },
-  { 225, 225, 223}
-};
+
 
 String colourName[6] = 
 {
@@ -85,7 +78,7 @@ float whiteArray[] = { 32, 76, 49 };
 float blackArray[] = { 19, 25, 19 };
 float greyDiff[] = { 13, 51, 30 };
 
-
+//function to geneate a pulse and measure distance from the right wall, returns 0 if timedout
 double gen_ultrasonic() {
     pinMode(ULTRASONIC, OUTPUT);
     digitalWrite(ULTRASONIC, LOW);
@@ -97,12 +90,11 @@ double gen_ultrasonic() {
     long duration = pulseIn(ULTRASONIC, HIGH, TIMEOUT);
     if (duration > 0) {
     double distance = duration / 2.0 / 1000000 * SPEED_OF_SOUND * 100 - 3.40;
-   // Serial.print("distance(cm) = ");
-   // Serial.println(distance);
+
     return distance;
     }
     else {
-   //  Serial.println("out of range");
+
     return 0;
     }
 }
@@ -184,9 +176,7 @@ void uTurn() {
     leftMotor.stop(); // Stop left motor
     rightMotor.stop(); 
 }
-void doubleLeftTurn() {
-    }
-void doubleRightTurn() {
+
     }
 void nudgeRight() {
     leftMotor.run(lowSpeed+30); 
@@ -219,6 +209,7 @@ void shineBlue() {
     digitalWrite(BIT_B_YELLOW, LOW);
 }
 
+//function to turn on led based on called colour
 void shine(int c) {
   if (c == red) {
     shineRed();
@@ -275,19 +266,26 @@ int detectColour() {
     else
     return purple;
   }
+
+  //check for purple
   if ( r > g && r > b) {
     if (r - b < 50) {
       return purple;
     }
   }
+
+  //check for orange
   if (g -b> 25){
     return orange;
   }
+
+  // check for red
   return red;
 }
 
+//function for callibrating the whiteArray, blackArray, greyDiff
 void setBalance() {
-  //set white balance
+  
   //Serial.println("Put White Sample For Calibration ...");
   delay(3000);  //delay for five seconds for getting sample ready
   //scan the white sample.
@@ -324,6 +322,7 @@ void setBalance() {
 }
 
 
+//returns the differemce in analog reading of ir receiver of ambient light and reflected ir ray
 double ambient_ir(){
   double voltage = 0;
 
@@ -347,7 +346,7 @@ double ambient_ir(){
   return voltage;
 }
 
-
+//function to do challenege based on the colour detected
 void challenge(int color){
   if (color == 0)
   {
@@ -419,9 +418,11 @@ pinMode(LDR, INPUT);
 shineRed();
 delay(20);
 
+//sets the target differential ir reading from the wall
+ambient = ambient_ir();
 
 
-//setBalance(); //calibrate colour sensor with white and black
+setBalance(); //calibrate colour sensor with white and black
   
   //print calibrated values
   for (int i = 0; i < 3; i ++) {
@@ -434,23 +435,22 @@ delay(20);
     Serial.println(greyDiff[i]);
   } 
  
-  Serial.print("ambient");
-  Serial.println(ambient);
+
 }
 
 void loop()
 {
-    if (analogRead(A7) < 100) { // If push button is pushed, the value will be very low
+    //allows changing of status by pushing button
+    if (analogRead(A7) < 100) { 
     status += 1; // Toggle status
     delay(500);
     buzzer.tone(e, 600);
-
-   
     }
+
     if (status == 1){
       shineRed();
       delay(20);
-      ambient = ambient_ir();
+
       buzzer.tone(e, 600);
       status += 1;
       
@@ -491,9 +491,11 @@ void loop()
             challenge(colour);
             }
         }
-    else {
 
-        if (lcompensate >= 7){
+    //executes moving algorithm if not on black line
+    else {
+        //accounts for over turning
+        if (lcompensate >= 3){
           
           for (int i = 0; i <= 3; i++){
             nudgeLeft();
@@ -510,7 +512,7 @@ void loop()
           moveForward();
         }
          if (rcompensate >= 3){
-          for (int i = 0; i<=4; i++){
+          for (int i = 0; i<=3; i++){
             nudgeRight();
             delay(2);
 
@@ -527,9 +529,11 @@ void loop()
         }
         
 
-       
+       // generates left and right distances
         LeftInput = ambient_ir();
         right_distance = gen_ultrasonic();
+
+        //movement algorithm adjusts based on right wall if detected
         if (right_distance != 0)
         {   
             delay(20);
@@ -564,24 +568,21 @@ void loop()
                 
             }    
         }
-        if ((ambient - LeftInput > 30)){
-         // Serial.println(ambient - LeftInput);
 
-        }
-
-        if ((ambient - LeftInput > 100) && (LeftInput != 0) && right_distance == 0)
+        //if ultrasonic times out and a Left Wall is readable and varies by more than 100 use IR to nudge
+        if ((abs(ambient - LeftInput) > 100) && (LeftInput > 20) && right_distance == 0)
         {
           
-          if(ambient - LeftInput > 110){
-          //nudgeRight();
+          if(ambient > LeftInput){
+          nudgeRight();
           //delay(20);
           
                 rcompensate = 0;
                 lcompensate = 0;
           }
-          else if (ambient - LeftInput < 102){
-          //nudgeLeft();
-          //delay(20);
+          else if (ambient < LeftInput){
+          nudgeLeft();
+          delay(20);
           
                 rcompensate = 0;
                 lcompensate = 0;
@@ -594,6 +595,7 @@ void loop()
                 lcompensate = 0;
         }
         }
+        // if both sensors do not detect a wall
         else 
         {
             moveForward();
