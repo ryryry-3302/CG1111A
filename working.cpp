@@ -422,19 +422,7 @@ delay(20);
 ambient = ambient_ir();
 
 
-setBalance(); //calibrate colour sensor with white and black
-  
-  //print calibrated values
-  for (int i = 0; i < 3; i ++) {
-    Serial.println(whiteArray[i]);
-  }
-  for (int i = 0; i < 3; i ++) {
-    Serial.println(blackArray[i]);
-  }
-  for (int i = 0; i < 3; i ++) {
-    Serial.println(greyDiff[i]);
-  } 
- 
+
 
 }
 
@@ -543,7 +531,7 @@ void loop()
             if (right_distance < 4.5)
             {
                 nudgeLeft();
-                //Serial.println("nudging left");
+              
                 lcompensate =0;
                 rcompensate +=1;
                 delay(20);
@@ -552,7 +540,7 @@ void loop()
             else if (right_distance >5.9)
             {
                 nudgeRight();
-              //  Serial.println("nudging right");
+             
 
                 rcompensate = 0;
                 lcompensate +=1;
