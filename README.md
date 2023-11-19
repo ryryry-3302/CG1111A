@@ -38,22 +38,13 @@ Right Motor = M2
 leftMotor.run(200); // Left wheel goes forward (anti-clockwise)
 rightMotor.run(-200);
 
-Colour Interpretation
+## Colour Interpretation
 Red Left-turn
 Green Right turn
 Light Blue Two successive right-turns in two grids
 Orange 180° turn within the same grid
-
-
-
 Purple Two successive left-turns in two grids
 
-To Do List
-Calibrate Ultrasonic sensor done
-Calibrate Ir Sensor
-Create code for colour sensor
-create functions for colour challenges
-route correction half
 
 
 ## Color list 
@@ -67,6 +58,7 @@ purple {159,99 ,145}
 White{255,255,223}
 
 
+## Ode to joy
 ```c
 
     buzzer.tone(e, 600);
