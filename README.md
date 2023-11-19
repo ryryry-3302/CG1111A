@@ -6,9 +6,7 @@ Hello this is the source code for the NUS mod CG1111A ^_^ done by ryan, sze ying
 ![alt text](mbotunder.jpeg)
 
 
-ir detector red
-emitter is yellows
-l293d is hbridge to on and off the led
+
 
 
 ## Mbot Specs 
@@ -69,33 +67,7 @@ purple {159,99 ,145}
 White{255,255,223}
 
 
-28.00
-43.00
-67.00
-9.00
-11.00
-20.00
-19.00
-32.00
-47.00
-if red >145
-     if green <160
-        red 
-    else
-        if <150
-        orange 
-            else
-                white
-
-else
-    if green>200
-        blue  
-    
-    else if green >100
-        green
-    else
-        purple
-
+```c
 
     buzzer.tone(e, 600);
     buzzer.tone(f, 600);
@@ -128,3 +100,4 @@ else
     buzzer.tone(d, 600);
     buzzer.tone(c, 600);
     buzzer.tone(c, 600);
+```
