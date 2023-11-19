@@ -568,13 +568,7 @@ void loop()
                 rcompensate = 0;
                 lcompensate = 0;
           }
-          else if (ambient < LeftInput){
-          nudgeLeft();
-          delay(20);
-          
-                rcompensate = 0;
-                lcompensate = 0;
-          }
+
        
         else{
           moveForward();

@@ -1,7 +1,10 @@
 # CG1111A
-code for NUS mod CG1111A
 
-Hello world
+Hello this is the source code for the NUS mod CG1111A ^_^ done by ryan, sze ying and jun xian
+
+![alt text](ultrasonic.jpeg)
+![alt text](mbotunder.jpeg)
+
 
 ir detector red
 emitter is yellows
